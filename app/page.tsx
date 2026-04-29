@@ -4,7 +4,14 @@ import { useState } from "react"
 import { Bell, ChevronDown, X, GripVertical, Search, Shield, FileText, Settings, HelpCircle, Info, LogOut, ChevronRight, ChevronLeft } from "lucide-react"
 
 // 页面类型
-type PageType = "home" | "account" | "profile" | "batchBudget" | "login"
+type PageType = "home" | "account" | "profile" | "batchBudget" | "login" | "smartOptimization"
+
+// 推荐预算数据类型
+type RecommendedBudget = {
+  accountName: string
+  currentBudget: number
+  recommendedBudget: number
+}
 
 // 可选指标列表
 const availableMetrics = [
@@ -34,11 +41,18 @@ export default function VivoApp() {
   const [currentPage, setCurrentPage] = useState<PageType>("home")
   const [batchBudgetSource, setBatchBudgetSource] = useState<string>("")
   const [previousPage, setPreviousPage] = useState<PageType>("profile")
+  const [recommendedBudgets, setRecommendedBudgets] = useState<RecommendedBudget[]>([])
 
   // 跳转到批量设置预算页面
-  const goToBatchBudget = (source: string = "") => {
+  const goToBatchBudget = (source: string = "", budgets: RecommendedBudget[] = []) => {
     setBatchBudgetSource(source)
+    setRecommendedBudgets(budgets)
     setCurrentPage("batchBudget")
+  }
+
+  // 跳转到智能调优页面
+  const goToSmartOptimization = () => {
+    setCurrentPage("smartOptimization")
   }
 
   // 跳转到登录页
@@ -101,18 +115,26 @@ export default function VivoApp() {
       case "home":
         return <HomePage goToBatchBudget={goToBatchBudget} />
       case "account":
-        return <AccountPage goToBatchBudget={goToBatchBudget} />
+        return <AccountPage goToBatchBudget={goToBatchBudget} goToSmartOptimization={goToSmartOptimization} />
       case "profile":
         return <ProfilePage onLogout={goToLogin} />
       case "batchBudget":
         return (
           <BatchBudgetPage
             source={batchBudgetSource}
+            recommendedBudgets={recommendedBudgets}
             onBack={() => setCurrentPage("account")}
           />
         )
       case "login":
         return <LoginPage onLogin={handleLogin} onBack={handleLoginBack} />
+      case "smartOptimization":
+        return (
+          <SmartOptimizationPage
+            onBack={() => setCurrentPage("account")}
+            goToBatchBudget={goToBatchBudget}
+          />
+        )
       default:
         return <HomePage goToBatchBudget={goToBatchBudget} />
     }
@@ -121,7 +143,7 @@ export default function VivoApp() {
   return (
     <div className="w-[393px] h-[844px] bg-gray-100 mx-auto relative overflow-hidden shadow-xl">
       {renderPage()}
-      {currentPage !== "batchBudget" && currentPage !== "login" && renderTabBar()}
+      {currentPage !== "batchBudget" && currentPage !== "login" && currentPage !== "smartOptimization" && renderTabBar()}
     </div>
   )
 }
@@ -657,7 +679,7 @@ function HomePage({ goToBatchBudget }: { goToBatchBudget: (source: string) => vo
 }
 
 // ==================== 账户页组件 ====================
-function AccountPage({ goToBatchBudget }: { goToBatchBudget: (source: string) => void }) {
+function AccountPage({ goToBatchBudget, goToSmartOptimization }: { goToBatchBudget: (source: string, budgets?: RecommendedBudget[]) => void; goToSmartOptimization: () => void }) {
   // 原始账户数据
   const allAccounts = [
     { id: 1, name: "品牌推广-A计划", roi: 2.35, status: "投放中", isActive: true, budget: 5000, spent: 3245, tags: ["品牌���广", "高ROI账户"] },
@@ -682,7 +704,7 @@ function AccountPage({ goToBatchBudget }: { goToBatchBudget: (source: string) =>
   // 标签选项
   const tagOptions = ["不限标签", "品牌推广", "效果转化", "拉新活动", "高ROI账户", "低消耗测试"]
   // 排序选项
-  const sortOptions = ["花费最高", "花费最低", "ROI最高", "ROI最低", "点击率最高", "转化率最高", "最新创建", "最近活跃"]
+  const sortOptions = ["花费最高", "花费最低", "ROI最高", "ROI最低", "点击率最高", "转化率最高", "最新创建", "最���活跃"]
 
   // 切换标签选择
   const toggleTag = (tag: string) => {
@@ -904,8 +926,11 @@ function AccountPage({ goToBatchBudget }: { goToBatchBudget: (source: string) =>
             >
               批量修改
             </button>
-            <button className="flex-1 bg-gray-100 rounded-lg py-2.5 text-sm text-gray-600 hover:bg-gray-200 transition-colors">
-              智能报优
+            <button 
+              onClick={goToSmartOptimization}
+              className="flex-1 bg-gray-100 rounded-lg py-2.5 text-sm text-gray-600 hover:bg-gray-200 transition-colors"
+            >
+              智能调优
             </button>
           </div>
         </div>
@@ -1195,8 +1220,253 @@ function LoginPage({ onLogin, onBack }: { onLogin: () => void; onBack: () => voi
   )
 }
 
+// ==================== 智能调优组件 ====================
+function SmartOptimizationPage({ onBack, goToBatchBudget }: { onBack: () => void; goToBatchBudget: (source: string, budgets: RecommendedBudget[]) => void }) {
+  // 调优策略状态
+  const [selectedStrategy, setSelectedStrategy] = useState("避免预算撞线")
+  const strategies = ["避免预算撞线", "提升转化", "控制成本", "提高 ROI"]
+  
+  // 建议数据
+  const [suggestions, setSuggestions] = useState([
+    {
+      id: 1,
+      accountName: "品牌推广-A计划",
+      riskStatus: "预算即将耗尽",
+      riskColor: "text-amber-600",
+      currentBudget: 5000,
+      spent: 3245,
+      remaining: 1755,
+      roi: 2.35,
+      recommendedBudget: 6500,
+      reason: "消耗速度较快，ROI表现良好，预计今日预算不足",
+      status: "pending" as "pending" | "adopted" | "ignored"
+    },
+    {
+      id: 2,
+      accountName: "效果转化-B计划",
+      riskStatus: "预算撞线风险高",
+      riskColor: "text-red-500",
+      currentBudget: 8000,
+      spent: 7890,
+      remaining: 110,
+      roi: 1.82,
+      recommendedBudget: 10000,
+      reason: "预算即将耗尽，仍有稳定转化效果，建议提升预算上限",
+      status: "pending" as "pending" | "adopted" | "ignored"
+    },
+    {
+      id: 3,
+      accountName: "拉新活动-C计划",
+      riskStatus: "ROI偏低",
+      riskColor: "text-orange-500",
+      currentBudget: 1000,
+      spent: 950,
+      remaining: 50,
+      roi: 0.95,
+      recommendedBudget: 700,
+      reason: "ROI低于预期，建议控制预算避免无效消耗",
+      status: "pending" as "pending" | "adopted" | "ignored"
+    }
+  ])
+  
+  const [showToast, setShowToast] = useState(false)
+  
+  // 统计数据
+  const riskCount = suggestions.filter(s => s.riskStatus.includes("风险") || s.riskStatus.includes("耗尽")).length
+  const upAdjustCount = suggestions.filter(s => s.recommendedBudget > s.currentBudget).length
+  const downAdjustCount = suggestions.filter(s => s.recommendedBudget < s.currentBudget).length
+  
+  // 采纳建议
+  const handleAdopt = (id: number) => {
+    setSuggestions(prev => prev.map(s => s.id === id ? { ...s, status: "adopted" as const } : s))
+  }
+  
+  // 忽略建议
+  const handleIgnore = (id: number) => {
+    setSuggestions(prev => prev.map(s => s.id === id ? { ...s, status: "ignored" as const } : s))
+  }
+  
+  // 一键采纳全部
+  const handleAdoptAll = () => {
+    setSuggestions(prev => prev.map(s => s.status === "pending" ? { ...s, status: "adopted" as const } : s))
+    setShowToast(true)
+    setTimeout(() => {
+      setShowToast(false)
+      // 跳转到批量设置预算页，传入推荐预算数据
+      const budgets: RecommendedBudget[] = suggestions.map(s => ({
+        accountName: s.accountName,
+        currentBudget: s.currentBudget,
+        recommendedBudget: s.recommendedBudget
+      }))
+      goToBatchBudget("来自智能调优建议", budgets)
+    }, 1000)
+  }
+  
+  const pendingCount = suggestions.filter(s => s.status === "pending").length
+
+  return (
+    <div className="h-full flex flex-col overflow-hidden relative">
+      {/* Toast提示 */}
+      {showToast && (
+        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-green-500 text-white text-sm px-4 py-2 rounded-lg shadow-lg">
+          已采纳全部智能调优建议
+        </div>
+      )}
+      
+      {/* 顶部导航 */}
+      <header className="bg-white px-4 py-3 border-b border-gray-200 flex items-center gap-3 flex-shrink-0">
+        <button onClick={onBack} className="text-gray-500">
+          <ChevronLeft className="w-5 h-5" />
+        </button>
+        <h1 className="text-base font-medium text-gray-800">智能调优</h1>
+      </header>
+      
+      {/* 内容区域 */}
+      <main className="flex-1 overflow-y-auto px-4 py-3 space-y-3 pb-[90px] custom-scrollbar">
+        {/* 调优概览卡片 */}
+        <div className="w-[361px] bg-white rounded-xl p-4">
+          <h3 className="text-sm font-medium text-gray-800 mb-3">调优概览</h3>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-gray-50 rounded-lg p-3">
+              <div className="text-xs text-gray-500">检测账户数</div>
+              <div className="text-lg font-medium text-gray-800">{suggestions.length}</div>
+            </div>
+            <div className="bg-gray-50 rounded-lg p-3">
+              <div className="text-xs text-gray-500">预算风险账户</div>
+              <div className="text-lg font-medium text-red-500">{riskCount}</div>
+            </div>
+            <div className="bg-gray-50 rounded-lg p-3">
+              <div className="text-xs text-gray-500">建议上调预算</div>
+              <div className="text-lg font-medium text-green-500">{upAdjustCount}</div>
+            </div>
+            <div className="bg-gray-50 rounded-lg p-3">
+              <div className="text-xs text-gray-500">建议下调预算</div>
+              <div className="text-lg font-medium text-orange-500">{downAdjustCount}</div>
+            </div>
+          </div>
+        </div>
+        
+        {/* 调优策略选择 */}
+        <div className="w-[361px] bg-white rounded-xl p-4">
+          <h3 className="text-sm font-medium text-gray-800 mb-3">调优策略</h3>
+          <div className="flex flex-wrap gap-2">
+            {strategies.map((strategy) => (
+              <button
+                key={strategy}
+                onClick={() => setSelectedStrategy(strategy)}
+                className={`px-3 py-1.5 text-xs rounded-full border ${
+                  selectedStrategy === strategy 
+                    ? "bg-[#1677FF] text-white border-[#1677FF]" 
+                    : "bg-white text-gray-600 border-gray-200"
+                }`}
+              >
+                {strategy}
+              </button>
+            ))}
+          </div>
+        </div>
+        
+        {/* 智能建议账户列表 */}
+        <div className="w-[361px]">
+          <h3 className="text-sm font-medium text-gray-800 mb-3">智能建议</h3>
+          <div className="space-y-3">
+            {suggestions.map((suggestion) => (
+              <div 
+                key={suggestion.id} 
+                className={`bg-white rounded-xl p-4 relative ${
+                  suggestion.status === "ignored" ? "opacity-50" : ""
+                }`}
+              >
+                {/* 状态标签 */}
+                {suggestion.status !== "pending" && (
+                  <div className={`absolute top-3 right-3 text-xs px-2 py-0.5 rounded ${
+                    suggestion.status === "adopted" 
+                      ? "bg-blue-50 text-blue-500" 
+                      : "bg-gray-100 text-gray-400"
+                  }`}>
+                    {suggestion.status === "adopted" ? "已采纳" : "已忽略"}
+                  </div>
+                )}
+                
+                {/* 账户名称和风险状态 */}
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-sm font-medium text-gray-800">{suggestion.accountName}</span>
+                  <span className={`text-xs ${suggestion.riskColor}`}>{suggestion.riskStatus}</span>
+                </div>
+                
+                {/* 预算信息 */}
+                <div className="grid grid-cols-2 gap-2 text-xs mb-3">
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">当前预算：</span>
+                    <span className="text-gray-700">¥{suggestion.currentBudget.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">已消耗：</span>
+                    <span className="text-gray-700">¥{suggestion.spent.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">剩余预算：</span>
+                    <span className="text-gray-700">¥{suggestion.remaining.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">ROI：</span>
+                    <span className="text-gray-700">{suggestion.roi.toFixed(2)}</span>
+                  </div>
+                </div>
+                
+                {/* 系统建议 */}
+                <div className="bg-blue-50 rounded-lg p-3 mb-3">
+                  <div className="text-xs text-blue-600 font-medium mb-1">
+                    系统建议：{suggestion.recommendedBudget > suggestion.currentBudget ? "上调" : "下调"}预算至 ¥{suggestion.recommendedBudget.toLocaleString()}
+                  </div>
+                  <div className="text-xs text-gray-500">{suggestion.reason}</div>
+                </div>
+                
+                {/* 操作按钮 */}
+                {suggestion.status === "pending" && (
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={() => handleIgnore(suggestion.id)}
+                      className="flex-1 py-2 text-xs text-gray-600 bg-gray-100 rounded-lg"
+                    >
+                      忽略
+                    </button>
+                    <button 
+                      onClick={() => handleAdopt(suggestion.id)}
+                      className="flex-1 py-2 text-xs text-white bg-[#1677FF] rounded-lg"
+                    >
+                      采纳建议
+                    </button>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </main>
+      
+      {/* 底部固定按钮 */}
+      <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-4">
+        <button 
+          onClick={handleAdoptAll}
+          disabled={pendingCount === 0}
+          className={`w-full py-3 text-sm font-medium rounded-lg ${
+            pendingCount > 0 
+              ? "bg-[#1677FF] text-white" 
+              : "bg-gray-200 text-gray-400 cursor-not-allowed"
+          }`}
+        >
+          一键采纳全部建议{pendingCount > 0 ? `（${pendingCount}条）` : ""}
+        </button>
+      </div>
+    </div>
+  )
+}
+
 // ==================== 批量设置预算组件 ====================
-function BatchBudgetPage({ source, onBack }: { source: string; onBack: () => void }) {
+function BatchBudgetPage({ source, recommendedBudgets = [], onBack }: { source: string; recommendedBudgets?: RecommendedBudget[]; onBack: () => void }) {
+  const hasRecommendedBudgets = recommendedBudgets.length > 0
+  
   const [budgetType, setBudgetType] = useState<"unified" | "percentage">("unified")
   const [budgetAmount, setBudgetAmount] = useState("")
   const [percentage, setPercentage] = useState("")
@@ -1204,11 +1474,23 @@ function BatchBudgetPage({ source, onBack }: { source: string; onBack: () => voi
   const [showSourceTip, setShowSourceTip] = useState(!!source)
   const [showToast, setShowToast] = useState(false)
 
-  const [selectedAccounts, setSelectedAccounts] = useState([
-    { id: 1, name: "品牌推广-A计划", budget: "¥5,000/天", checked: false },
-    { id: 2, name: "效果转化-B计划", budget: "¥3,000/天", checked: false },
-    { id: 3, name: "拉新活动-C计划", budget: "¥3,000/天", checked: false },
-  ])
+  // 如果有推荐预算，自动选中并带入推荐预算
+  const [selectedAccounts, setSelectedAccounts] = useState(() => {
+    if (hasRecommendedBudgets) {
+      return recommendedBudgets.map((rb, index) => ({
+        id: index + 1,
+        name: rb.accountName,
+        budget: `¥${rb.currentBudget.toLocaleString()}/天`,
+        recommendedBudget: rb.recommendedBudget,
+        checked: true
+      }))
+    }
+    return [
+      { id: 1, name: "品牌推广-A计划", budget: "¥5,000/天", recommendedBudget: 0, checked: false },
+      { id: 2, name: "效果转化-B计划", budget: "¥3,000/天", recommendedBudget: 0, checked: false },
+      { id: 3, name: "拉新活动-C计划", budget: "¥3,000/天", recommendedBudget: 0, checked: false },
+    ]
+  })
 
   const selectedCount = selectedAccounts.filter((a) => a.checked).length
 
@@ -1337,6 +1619,9 @@ function BatchBudgetPage({ source, onBack }: { source: string; onBack: () => voi
                 <div>
                   <p className="text-sm text-gray-800">{account.name}</p>
                   <p className="text-xs text-gray-400">当前预算: {account.budget}</p>
+                  {account.recommendedBudget > 0 && (
+                    <p className="text-xs text-blue-500">推荐预算: ¥{account.recommendedBudget.toLocaleString()}</p>
+                  )}
                 </div>
               </div>
             ))}
@@ -1349,6 +1634,9 @@ function BatchBudgetPage({ source, onBack }: { source: string; onBack: () => voi
         {/* 预算设置 */}
         <div className={`w-[361px] bg-white rounded-lg p-4 ${selectedCount === 0 ? "opacity-50" : ""}`}>
           <span className="text-sm font-medium text-gray-800">预算设置</span>
+          {hasRecommendedBudgets && (
+            <p className="text-xs text-blue-500 mt-1">已根据智能调优建议填充推荐预算，可继续手动修改</p>
+          )}
           <div className="flex gap-2 mt-3 mb-4">
             <button
               onClick={() => selectedCount > 0 && setBudgetType("unified")}
