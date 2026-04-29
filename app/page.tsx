@@ -119,7 +119,7 @@ export default function VivoApp() {
   }
 
   return (
-    <div className="w-[393px] min-h-screen bg-gray-100 mx-auto relative">
+    <div className="w-[393px] h-[844px] bg-gray-100 mx-auto relative overflow-hidden shadow-xl">
       {renderPage()}
       {currentPage !== "batchBudget" && currentPage !== "login" && renderTabBar()}
     </div>
@@ -253,9 +253,9 @@ function HomePage({ goToBatchBudget }: { goToBatchBudget: (source: string) => vo
   )
 
   return (
-    <div className="pb-[72px] overflow-x-hidden">
-      {/* 顶部导航 */}
-      <header className="bg-white px-4 py-3 flex items-center justify-between">
+    <div className="h-full flex flex-col overflow-hidden">
+      {/* 顶部导航 - 固定 */}
+      <header className="bg-white px-4 py-3 flex items-center justify-between flex-shrink-0">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-gray-300" />
           <div>
@@ -279,8 +279,8 @@ function HomePage({ goToBatchBudget }: { goToBatchBudget: (source: string) => vo
         </div>
       </header>
 
-      {/* 内容区域 */}
-      <main className="px-4 py-3 space-y-3 flex flex-col items-center">
+      {/* 内容区域 - 可滚动 */}
+      <main className="flex-1 overflow-y-auto px-4 py-3 space-y-3 flex flex-col items-center pb-[72px] custom-scrollbar">
         {/* 预算预警消息卡片 */}
         <button
           onClick={() => goToBatchBudget("来自预算预警")}
@@ -744,8 +744,8 @@ function AccountPage({ goToBatchBudget }: { goToBatchBudget: (source: string) =>
   // 搜索状态UI
   if (isSearching) {
     return (
-      <div className="pb-[72px] overflow-x-hidden">
-        <header className="bg-white px-4 py-3 border-b border-gray-200">
+      <div className="h-full flex flex-col overflow-hidden">
+        <header className="bg-white px-4 py-3 border-b border-gray-200 flex-shrink-0">
           <div className="flex items-center gap-2">
             <div className="flex-1 bg-gray-100 rounded-lg px-3 py-2 flex items-center gap-2">
               <Search className="w-4 h-4 text-gray-400" />
@@ -774,7 +774,7 @@ function AccountPage({ goToBatchBudget }: { goToBatchBudget: (source: string) =>
             </button>
           </div>
         </header>
-        <main className="px-4 py-3">
+        <main className="flex-1 overflow-y-auto px-4 py-3 pb-[72px] custom-scrollbar">
           {searchKeyword === "" ? (
             <div className="w-[361px]">
               <div className="text-xs text-gray-500 mb-2">最近搜索</div>
@@ -837,11 +837,11 @@ function AccountPage({ goToBatchBudget }: { goToBatchBudget: (source: string) =>
   }
 
   return (
-    <div className="pb-[72px] overflow-x-hidden">
-      <header className="bg-white px-4 py-3 border-b border-gray-200">
+    <div className="h-full flex flex-col overflow-hidden">
+      <header className="bg-white px-4 py-3 border-b border-gray-200 flex-shrink-0">
         <h1 className="text-base font-medium text-gray-800">投放账户</h1>
       </header>
-      <main className="px-4 py-3 space-y-3 flex flex-col items-center">
+      <main className="flex-1 overflow-y-auto px-4 py-3 space-y-3 flex flex-col items-center pb-[72px] custom-scrollbar">
         <div className="w-[361px] flex items-center gap-2">
           <button
             onClick={() => setIsSearching(true)}
@@ -1032,12 +1032,12 @@ function ProfilePage({ onLogout }: { onLogout: () => void }) {
   ]
 
   return (
-    <div className="pb-[72px] overflow-x-hidden">
-      <header className="bg-white px-4 py-3 flex items-center justify-between border-b border-gray-200">
+    <div className="h-full flex flex-col overflow-hidden">
+      <header className="bg-white px-4 py-3 flex items-center justify-between border-b border-gray-200 flex-shrink-0">
         <h1 className="text-base font-medium text-gray-800">个人中心</h1>
         <Settings className="w-5 h-5 text-gray-400" />
       </header>
-      <main className="px-4 py-3 space-y-3 flex flex-col items-center">
+      <main className="flex-1 overflow-y-auto px-4 py-3 space-y-3 flex flex-col items-center pb-[72px] custom-scrollbar">
         <div className="w-[361px] bg-white rounded-lg p-4">
           <div className="flex items-center gap-3">
             <div className="w-14 h-14 rounded-full bg-gray-300" />
@@ -1086,9 +1086,9 @@ function LoginPage({ onLogin, onBack }: { onLogin: () => void; onBack: () => voi
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col">
+    <div className="h-full bg-gray-100 flex flex-col overflow-hidden">
       {/* 顶部导航 */}
-      <header className="bg-gray-100 px-4 py-3 flex items-center">
+      <header className="bg-gray-100 px-4 py-3 flex items-center flex-shrink-0">
         <button onClick={onBack} className="flex items-center gap-1 text-gray-600">
           <ChevronLeft className="w-5 h-5" />
           <span className="text-sm">登录</span>
@@ -1096,7 +1096,7 @@ function LoginPage({ onLogin, onBack }: { onLogin: () => void; onBack: () => voi
       </header>
 
       {/* 内容区 */}
-      <main className="flex-1 flex flex-col items-center px-4 pt-12">
+      <main className="flex-1 flex flex-col items-center px-4 pt-12 overflow-y-auto custom-scrollbar">
         {/* Logo */}
         <div className="flex items-center gap-2 mb-8">
           <div className="w-8 h-8 bg-[#1677FF] rounded-lg flex items-center justify-center">
@@ -1240,7 +1240,7 @@ function BatchBudgetPage({ source, onBack }: { source: string; onBack: () => voi
   }
 
   return (
-    <div className="min-h-screen overflow-x-hidden">
+    <div className="h-full flex flex-col overflow-hidden relative">
       {/* Toast提示 */}
       {showToast && (
         <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-gray-800 text-white text-sm px-4 py-2 rounded-lg shadow-lg">
@@ -1276,7 +1276,7 @@ function BatchBudgetPage({ source, onBack }: { source: string; onBack: () => voi
       )}
 
       {/* 顶部导航 */}
-      <header className="bg-white px-4 py-3 border-b border-gray-200 flex items-center gap-3">
+      <header className="bg-white px-4 py-3 border-b border-gray-200 flex items-center gap-3 flex-shrink-0">
         <button onClick={onBack} className="text-gray-500">
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
@@ -1286,7 +1286,7 @@ function BatchBudgetPage({ source, onBack }: { source: string; onBack: () => voi
       </header>
 
       {/* 步骤条 */}
-      <div className="bg-white px-4 py-4 flex items-center justify-center gap-2">
+      <div className="bg-white px-4 py-4 flex items-center justify-center gap-2 flex-shrink-0">
         <div className="flex flex-col items-center">
           <div className={`w-6 h-6 rounded-full text-white text-xs flex items-center justify-center ${selectedCount > 0 ? "bg-blue-500" : "bg-blue-500"}`}>
             {selectedCount > 0 ? (
@@ -1312,7 +1312,7 @@ function BatchBudgetPage({ source, onBack }: { source: string; onBack: () => voi
       </div>
 
       {/* 内容区域 */}
-      <main className="px-4 py-3 space-y-3 flex flex-col items-center pb-[90px]">
+      <main className="flex-1 overflow-y-auto px-4 py-3 space-y-3 flex flex-col items-center pb-[90px] custom-scrollbar">
         {/* 已选账户 */}
         <div className="w-[361px] bg-white rounded-lg p-4">
           <div className="flex items-center justify-between mb-3">
@@ -1422,7 +1422,7 @@ function BatchBudgetPage({ source, onBack }: { source: string; onBack: () => voi
               clipRule="evenodd"
             />
           </svg>
-          <p className="text-xs text-amber-600">批量修改预算可能影响投放稳定性，请确认调整策略</p>
+          <p className="text-xs text-amber-600">��量修改预算可能影响投放稳定性，请确认调整策略</p>
         </div>
       </main>
 
