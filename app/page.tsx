@@ -235,7 +235,7 @@ function HomePage({ goToBatchBudget }: { goToBatchBudget: (source: string) => vo
     setHasUnread(false)
   }
 
-  const maxMetrics = 12
+  const maxMetrics = 10
 
   const handleOpenSheet = () => {
     setTempSelectedMetrics(selectedMetrics)
@@ -261,7 +261,7 @@ function HomePage({ goToBatchBudget }: { goToBatchBudget: (source: string) => vo
   }
 
   const handleReset = () => {
-    setTempSelectedMetrics(defaultSelectedMetrics)
+    setTempSelectedMetrics([])
   }
 
   const handleSave = () => {
@@ -372,7 +372,7 @@ function HomePage({ goToBatchBudget }: { goToBatchBudget: (source: string) => vo
                   <div className="w-2 h-2 rounded-full bg-green-400" />
                   <span className="text-sm text-gray-600">{currentAccountData.availableBalance.toFixed(2)}</span>
                 </div>
-                <div className="text-xs text-gray-400 mt-1">可用余���</div>
+                <div className="text-xs text-gray-400 mt-1">可用余����</div>
               </div>
             </div>
           </div>
@@ -637,7 +637,6 @@ function HomePage({ goToBatchBudget }: { goToBatchBudget: (source: string) => vo
                           className="w-4 h-4 rounded border-gray-300 text-blue-500 focus:ring-blue-500"
                         />
                         <span className="text-sm text-gray-700">{metric.name}</span>
-                        {metric.hasInfo && <span className="text-gray-400 text-xs">?</span>}
                       </label>
                     )
                   })}
