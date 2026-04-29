@@ -156,6 +156,51 @@ function HomePage({ goToBatchBudget }: { goToBatchBudget: (source: string) => vo
   const accountOptions = Object.keys(accountData)
   const currentAccountData = accountData[selectedAccount]
   
+  // 指标数据（按账户）
+  type MetricData = Record<string, Record<string, number>>
+  const metricDataByAccount: MetricData = {
+    "全部账户概况": { "消耗（元）": 12085, "展示数": 45000, "点击数": 3290, "点击率": 7.31, "平均千次展现费用（元）": 268.56, "转化数": 500, "平均点击单价（元）": 3.67, "激活消耗": 8500, "现金消耗": 3585, "平均转化成本": 24.17 },
+    "品牌推广-A计划": { "消耗（元）": 3245, "展示数": 12000, "点击数": 890, "点击率": 7.42, "平均千次展现费用（元）": 270.42, "转化数": 120, "平均点击单价（元）": 3.65, "激活消耗": 2200, "现金消耗": 1045, "平均转化成本": 27.04 },
+    "效果转化-B计划": { "消耗（元）": 7890, "展示数": 28000, "点击数": 2100, "点击率": 7.5, "平均千次展现费用（元）": 281.79, "转化数": 340, "平均点击单价（元）": 3.76, "激活消耗": 5500, "现金消耗": 2390, "平均转化成本": 23.21 },
+    "拉新活动-C计划": { "消耗（元）": 950, "展示数": 5000, "点击数": 300, "点击率": 6.0, "平均千次展现费用（元）": 190.0, "转化数": 40, "平均点击单价（元）": 3.17, "激活消耗": 800, "现金消耗": 150, "平均转化成本": 23.75 },
+  }
+  
+  // 获取趋势数据点数
+  const getDataPointCount = (range: string): number => {
+    switch (range) {
+      case "今天": return 1
+      case "昨天": return 1
+      case "近7天": return 7
+      case "本周": return 7
+      case "本月": return 30
+      case "上月": return 30
+      default: return 7
+    }
+  }
+  
+  // 生成模拟趋势数据
+  const generateTrendData = (baseValue: number, points: number): number[] => {
+    const data: number[] = []
+    for (let i = 0; i < points; i++) {
+      const variance = baseValue * 0.2 * (Math.random() - 0.5)
+      data.push(Math.round((baseValue + variance) * 100) / 100)
+    }
+    return data
+  }
+  
+  // 获取当前指标数据
+  const getCurrentMetricValue = (metricName: string): number => {
+    const accountMetrics = metricDataByAccount[selectedAccount] || metricDataByAccount["全部账户概况"]
+    return accountMetrics[metricName] || 0
+  }
+  
+  // 获取当前指标趋势数据
+  const getMetricTrendData = (metricName: string): number[] => {
+    const baseValue = getCurrentMetricValue(metricName)
+    const points = getDataPointCount(selectedDateRange)
+    return generateTrendData(baseValue, points)
+  }
+  
   // 消息数据
   const notifications = [
     { id: 1, account: "品牌推广-A计划", spent: 3245, budget: 5000 },
@@ -356,23 +401,128 @@ function HomePage({ goToBatchBudget }: { goToBatchBudget: (source: string) => vo
           </div>
         </div>
 
-        {/* 图表占位区域1 */}
-        <div className="bg-white rounded-lg w-[361px] h-[160px] flex items-center justify-center relative overflow-hidden">
-          <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none">
-            <line x1="0" y1="0" x2="100%" y2="100%" stroke="#d1d5db" strokeWidth="1" />
-            <line x1="100%" y1="0" x2="0" y2="100%" stroke="#d1d5db" strokeWidth="1" />
-            <rect x="0" y="0" width="100%" height="100%" fill="none" stroke="#d1d5db" strokeWidth="1" />
-          </svg>
-        </div>
-
-        {/* 图表占位区域2 */}
-        <div className="bg-white rounded-lg w-[361px] h-[160px] flex items-center justify-center relative overflow-hidden">
-          <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none">
-            <line x1="0" y1="0" x2="100%" y2="100%" stroke="#d1d5db" strokeWidth="1" />
-            <line x1="100%" y1="0" x2="0" y2="100%" stroke="#d1d5db" strokeWidth="1" />
-            <rect x="0" y="0" width="100%" height="100%" fill="none" stroke="#d1d5db" strokeWidth="1" />
-          </svg>
-        </div>
+        {/* 动态图表区域 */}
+        {selectedMetrics.length === 0 ? (
+          /* 无选中指标 - 显示提示 */
+          <div className="bg-white rounded-lg w-[361px] h-[160px] flex items-center justify-center">
+            <div className="text-center">
+              <div className="text-gray-400 text-sm mb-2">暂无数据</div>
+              <button onClick={handleOpenSheet} className="text-blue-500 text-sm">
+                请选择指标
+              </button>
+            </div>
+          </div>
+        ) : selectedMetrics.length === 1 ? (
+          /* 单个指标 - 大趋势图 */
+          <div className="bg-white rounded-lg w-[361px] p-4">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-sm font-medium text-gray-800">
+                {selectedMetrics[0].name}趋势（{selectedDateRange}）
+              </span>
+              <span className="text-lg font-medium text-blue-500">
+                {selectedMetrics[0].name.includes("元") ? "¥" : ""}{getCurrentMetricValue(selectedMetrics[0].name).toLocaleString()}
+                {selectedMetrics[0].name.includes("率") ? "%" : ""}
+              </span>
+            </div>
+            {/* 模拟折线图 */}
+            <div className="h-[120px] flex items-end gap-1">
+              {getMetricTrendData(selectedMetrics[0].name).map((value, index, arr) => {
+                const max = Math.max(...arr)
+                const height = max > 0 ? (value / max) * 100 : 0
+                return (
+                  <div 
+                    key={index} 
+                    className="flex-1 bg-blue-100 rounded-t relative group"
+                    style={{ height: `${Math.max(height, 5)}%` }}
+                  >
+                    <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 whitespace-nowrap">
+                      {value.toLocaleString()}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        ) : selectedMetrics.length <= 3 ? (
+          /* 2-3个指标 - 组合展示 */
+          <div className="w-[361px] space-y-3">
+            {/* 主指标趋势图 */}
+            <div className="bg-white rounded-lg p-4">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-sm font-medium text-gray-800">
+                  {selectedMetrics[0].name}趋势（{selectedDateRange}）
+                </span>
+                <span className="text-lg font-medium text-blue-500">
+                  {selectedMetrics[0].name.includes("元") ? "¥" : ""}{getCurrentMetricValue(selectedMetrics[0].name).toLocaleString()}
+                  {selectedMetrics[0].name.includes("率") ? "%" : ""}
+                </span>
+              </div>
+              <div className="h-[80px] flex items-end gap-1">
+                {getMetricTrendData(selectedMetrics[0].name).map((value, index, arr) => {
+                  const max = Math.max(...arr)
+                  const height = max > 0 ? (value / max) * 100 : 0
+                  return (
+                    <div 
+                      key={index} 
+                      className="flex-1 bg-blue-100 rounded-t"
+                      style={{ height: `${Math.max(height, 5)}%` }}
+                    />
+                  )
+                })}
+              </div>
+            </div>
+            {/* 辅助指标卡片 */}
+            <div className="flex gap-3">
+              {selectedMetrics.slice(1).map((metric) => (
+                <div key={metric.id} className="flex-1 bg-white rounded-lg p-3">
+                  <div className="text-xs text-gray-500 mb-1">{metric.name}</div>
+                  <div className="text-base font-medium text-gray-800">
+                    {metric.name.includes("元") ? "¥" : ""}{getCurrentMetricValue(metric.name).toLocaleString()}
+                    {metric.name.includes("率") ? "%" : ""}
+                  </div>
+                  {/* 迷你趋势点 */}
+                  <div className="flex items-center gap-0.5 mt-2">
+                    {getMetricTrendData(metric.name).slice(0, 7).map((_, i) => (
+                      <div key={i} className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          /* 超过3个指标 - 横向滑动卡片 */
+          <div className="w-[361px]">
+            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
+              {selectedMetrics.map((metric) => (
+                <div key={metric.id} className="flex-shrink-0 w-[140px] bg-white rounded-lg p-3">
+                  <div className="text-xs text-gray-500 mb-1 truncate">{metric.name}</div>
+                  <div className="text-base font-medium text-gray-800">
+                    {metric.name.includes("元") ? "¥" : ""}{getCurrentMetricValue(metric.name).toLocaleString()}
+                    {metric.name.includes("率") ? "%" : ""}
+                  </div>
+                  {/* 迷你折线 */}
+                  <div className="h-[30px] flex items-end gap-0.5 mt-2">
+                    {getMetricTrendData(metric.name).slice(0, 7).map((value, index, arr) => {
+                      const max = Math.max(...arr)
+                      const height = max > 0 ? (value / max) * 100 : 0
+                      return (
+                        <div 
+                          key={index} 
+                          className="flex-1 bg-blue-200 rounded-t"
+                          style={{ height: `${Math.max(height, 10)}%` }}
+                        />
+                      )
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="text-center text-xs text-gray-400 mt-2">
+              已选 {selectedMetrics.length} 个指标，左右滑动查看更多
+            </div>
+          </div>
+        )}
       </main>
 
       {/* 消息通知页面（全屏覆盖） */}
