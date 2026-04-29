@@ -699,7 +699,7 @@ function AccountPage({ goToBatchBudget, goToSmartOptimization }: { goToBatchBudg
   const [recentSearches] = useState(["品牌推广A", "效果计划B"])
 
   // 时间选项
-  const timeOptions = ["今天", "昨天", "近7天", "本周", "本月", "�������月", "自定义时间"]
+  const timeOptions = ["今天", "昨天", "近7天", "本周", "本月", "���������月", "自定义时间"]
   // 标签选项
   const tagOptions = ["不限标签", "品牌推广", "效果转化", "拉新活动", "高ROI账户", "低消耗测试"]
   // 排序选项
@@ -942,15 +942,43 @@ function AccountPage({ goToBatchBudget, goToSmartOptimization }: { goToBatchBudg
       {/* 筛选面板 Bottom Sheet */}
       {showFilterSheet && (
         <>
-          {/* 遮罩 - 限制在手机框架内 */}
+          {/* 遮罩层 */}
           <div 
-            className="absolute top-0 left-0 right-0 bottom-0 w-[393px] h-[844px] bg-black/20 z-40"
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '393px',
+              height: '844px',
+              backgroundColor: 'rgba(0,0,0,0.2)',
+              zIndex: 40,
+              margin: 0,
+              padding: 0,
+              transform: 'none'
+            }}
             onClick={() => setShowFilterSheet(false)}
           />
-          {/* 面板 - 从底部弹出，完全贴合手机框架 */}
-          <div className="absolute bottom-0 left-0 right-0 w-[393px] h-[675px] bg-white rounded-t-xl z-50 flex flex-col animate-slide-up">
-            {/* 标题区 */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+          {/* 弹窗本体 */}
+          <div 
+            style={{
+              position: 'absolute',
+              left: 0,
+              bottom: 0,
+              width: '393px',
+              maxWidth: '393px',
+              height: '680px',
+              backgroundColor: '#fff',
+              borderTopLeftRadius: '12px',
+              borderTopRightRadius: '12px',
+              zIndex: 50,
+              margin: 0,
+              transform: 'none',
+              display: 'flex',
+              flexDirection: 'column'
+            }}
+          >
+            {/* 标题区 - 固定在顶部 */}
+            <div style={{ flexShrink: 0, borderBottom: '1px solid #f3f4f6' }} className="flex items-center justify-between px-4 py-3">
               <div className="w-6" />
               <span className="text-base font-medium text-gray-800">筛选条件</span>
               <button onClick={() => setShowFilterSheet(false)}>
@@ -958,8 +986,8 @@ function AccountPage({ goToBatchBudget, goToSmartOptimization }: { goToBatchBudg
               </button>
             </div>
             
-            {/* 内容区 */}
-            <div className="flex-1 overflow-y-auto px-4 py-4 space-y-6">
+            {/* 内容区 - 中间滚动 */}
+            <div style={{ flex: 1, overflowY: 'auto' }} className="px-4 py-4 space-y-6">
               {/* 时间筛选 */}
               <div>
                 <h4 className="text-sm font-medium text-gray-800 mb-3">时间范围</h4>
@@ -1021,8 +1049,8 @@ function AccountPage({ goToBatchBudget, goToSmartOptimization }: { goToBatchBudg
               </div>
             </div>
 
-            {/* 底部操作区 */}
-            <div className="px-4 py-4 border-t border-gray-100 flex gap-3">
+            {/* 底部操作区 - 固定在底部 */}
+            <div style={{ flexShrink: 0, borderTop: '1px solid #f3f4f6' }} className="px-4 py-4 flex gap-3">
               <button
                 onClick={resetFilter}
                 className="flex-1 py-2.5 text-sm text-gray-600 bg-gray-100 rounded-lg"
