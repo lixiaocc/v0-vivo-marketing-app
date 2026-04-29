@@ -1,6 +1,7 @@
 "use client"
 
-import { Bell, ChevronDown, Home, User, Wallet } from "lucide-react"
+import Link from "next/link"
+import { Bell, ChevronDown } from "lucide-react"
 
 export default function VivoHomePage() {
   return (
@@ -97,19 +98,14 @@ export default function VivoHomePage() {
       <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-[393px] h-[72px] bg-white border-t border-gray-200 px-4 flex items-center">
         <div className="flex justify-around items-center w-full">
           <div className="flex flex-col items-center">
-            <div className="w-16 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-              <Home className="w-4 h-4 text-white" />
-              <span className="text-xs text-white ml-1">首页</span>
-            </div>
+            <span className="bg-blue-500 text-white text-xs px-4 py-1.5 rounded-full">首页</span>
           </div>
-          <div className="flex flex-col items-center">
-            <Wallet className="w-5 h-5 text-gray-400" />
-            <span className="text-xs text-gray-400 mt-1">账户</span>
-          </div>
-          <div className="flex flex-col items-center">
-            <User className="w-5 h-5 text-gray-400" />
-            <span className="text-xs text-gray-400 mt-1">个人中心</span>
-          </div>
+          <Link href="/account" className="flex flex-col items-center gap-1">
+            <span className="text-xs text-gray-400">账户</span>
+          </Link>
+          <Link href="/profile" className="flex flex-col items-center gap-1">
+            <span className="text-xs text-gray-400">个人中心</span>
+          </Link>
         </div>
       </nav>
     </div>
