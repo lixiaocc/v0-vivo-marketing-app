@@ -132,6 +132,27 @@ function HomePage({ goToBatchBudget }: { goToBatchBudget: (source: string) => vo
   const [selectedMetrics, setSelectedMetrics] = useState(defaultSelectedMetrics)
   const [tempSelectedMetrics, setTempSelectedMetrics] = useState(defaultSelectedMetrics)
   const [searchQuery, setSearchQuery] = useState("")
+  
+  // 消息通知状态
+  const [showNotificationPanel, setShowNotificationPanel] = useState(false)
+  const [hasUnread, setHasUnread] = useState(true)
+  
+  // 日期筛选状态
+  const [showDateDropdown, setShowDateDropdown] = useState(false)
+  const [selectedDateRange, setSelectedDateRange] = useState("今天")
+  const dateOptions = ["今天", "昨天", "近7天", "本周", "本月", "上月"]
+  
+  // 消息数据
+  const notifications = [
+    { id: 1, account: "品牌推广-A计划", spent: 3245, budget: 5000 },
+    { id: 2, account: "效果转化-B计划", spent: 7890, budget: 8000 },
+    { id: 3, account: "拉新活动-C计划", spent: 950, budget: 1000 },
+  ]
+  
+  // 一键已读
+  const handleMarkAllRead = () => {
+    setHasUnread(false)
+  }
 
   const maxMetrics = 12
 
@@ -184,9 +205,17 @@ function HomePage({ goToBatchBudget }: { goToBatchBudget: (source: string) => vo
           </div>
         </div>
         <div className="flex items-center gap-4">
-          <Bell className="w-5 h-5 text-gray-400" />
+          <button 
+            onClick={() => setShowNotificationPanel(true)}
+            className="relative"
+          >
+            <Bell className="w-5 h-5 text-gray-400" />
+            {hasUnread && (
+              <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full" />
+            )}
+          </button>
           <div className="w-5 h-5 border border-gray-300 rounded flex items-center justify-center">
-            <span className="text-xs text-gray-400">⋯</span>
+            <span className="text-xs text-gray-400">...</span>
           </div>
         </div>
       </header>
@@ -216,7 +245,6 @@ function HomePage({ goToBatchBudget }: { goToBatchBudget: (source: string) => vo
           </div>
           <div className="flex items-baseline gap-2 mb-4">
             <span className="text-2xl font-medium text-gray-800">¥0.00</span>
-            <span className="text-xs text-gray-400">0次</span>
           </div>
           <div className="border-t border-gray-100 pt-3">
             <div className="flex justify-around">
@@ -242,9 +270,40 @@ function HomePage({ goToBatchBudget }: { goToBatchBudget: (source: string) => vo
         <div className="flex items-center justify-between pt-2 w-[361px]">
           <h2 className="text-base font-medium text-gray-800">数据概览</h2>
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1">
-              <span className="text-sm text-gray-500">今天</span>
-              <ChevronDown className="w-4 h-4 text-gray-400" />
+            <div className="relative">
+              <button 
+                onClick={() => setShowDateDropdown(!showDateDropdown)}
+                className="flex items-center gap-1"
+              >
+                <span className="text-sm text-gray-500">{selectedDateRange}</span>
+                <ChevronDown className="w-4 h-4 text-gray-400" />
+              </button>
+              {showDateDropdown && (
+                <>
+                  <div 
+                    className="fixed inset-0 z-30" 
+                    onClick={() => setShowDateDropdown(false)} 
+                  />
+                  <div className="absolute right-0 top-full mt-1 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-40 min-w-[100px]">
+                    {dateOptions.map((option) => (
+                      <button
+                        key={option}
+                        onClick={() => {
+                          setSelectedDateRange(option)
+                          setShowDateDropdown(false)
+                        }}
+                        className={`w-full px-4 py-2 text-left text-sm ${
+                          selectedDateRange === option 
+                            ? "text-blue-500 bg-blue-50" 
+                            : "text-gray-600 hover:bg-gray-50"
+                        }`}
+                      >
+                        {option}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
             <button onClick={handleOpenSheet} className="text-sm text-blue-500">
               自定义
@@ -270,6 +329,82 @@ function HomePage({ goToBatchBudget }: { goToBatchBudget: (source: string) => vo
           </svg>
         </div>
       </main>
+
+      {/* 消息通知面板 */}
+      {showNotificationPanel && (
+        <>
+          <div 
+            className="fixed inset-0 bg-black/30 z-40" 
+            onClick={() => setShowNotificationPanel(false)} 
+          />
+          <div className="fixed top-0 right-0 w-[320px] h-full bg-white z-50 shadow-xl flex flex-col">
+            {/* 面板头部 */}
+            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+              <h3 className="text-base font-medium text-gray-800">消息通知</h3>
+              <div className="flex items-center gap-3">
+                <button 
+                  onClick={handleMarkAllRead}
+                  className="text-xs text-blue-500"
+                >
+                  一键已读
+                </button>
+                <button onClick={() => setShowNotificationPanel(false)}>
+                  <X className="w-5 h-5 text-gray-400" />
+                </button>
+              </div>
+            </div>
+            
+            {/* 消息内容 */}
+            <div className="flex-1 overflow-y-auto p-4">
+              <div className={`bg-amber-50 border border-amber-200 rounded-lg p-4 ${hasUnread ? "" : "opacity-60"}`}>
+                {/* 消息类型标签 */}
+                <div className="flex items-center gap-2 mb-2">
+                  {hasUnread && <span className="w-2 h-2 bg-red-500 rounded-full" />}
+                  <span className="text-xs text-amber-600 bg-amber-100 px-2 py-0.5 rounded">预算撞线预警</span>
+                </div>
+                
+                {/* 消息标题 */}
+                <h4 className={`text-sm font-medium mb-1 ${hasUnread ? "text-gray-800" : "text-gray-500"}`}>
+                  预算即将耗尽
+                </h4>
+                
+                {/* 消息内容 */}
+                <p className={`text-xs mb-3 ${hasUnread ? "text-gray-600" : "text-gray-400"}`}>
+                  3个账户预算即将耗尽，请及时调整预算
+                </p>
+                
+                {/* 账户列表 */}
+                <div className="space-y-2 mb-4">
+                  {notifications.map((item) => (
+                    <div key={item.id} className="flex items-center justify-between text-xs">
+                      <span className={hasUnread ? "text-gray-700" : "text-gray-400"}>{item.account}</span>
+                      <span className={hasUnread ? "text-gray-500" : "text-gray-400"}>
+                        已消耗 ¥{item.spent.toLocaleString()} / 预算 ¥{item.budget.toLocaleString()}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                
+                {/* 操作按钮 */}
+                <div className="flex gap-2">
+                  <button className="flex-1 py-2 text-xs text-gray-600 bg-gray-100 rounded-lg">
+                    查看详情
+                  </button>
+                  <button 
+                    onClick={() => {
+                      setShowNotificationPanel(false)
+                      goToBatchBudget("来自消息通知")
+                    }}
+                    className="flex-1 py-2 text-xs text-white bg-blue-500 rounded-lg"
+                  >
+                    去调整预算
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
 
       {/* 自定义指标弹层 */}
       {showMetricsSheet && (
@@ -359,7 +494,7 @@ function HomePage({ goToBatchBudget }: { goToBatchBudget: (source: string) => vo
 function AccountPage({ goToBatchBudget }: { goToBatchBudget: (source: string) => void }) {
   // 原始账户数据
   const allAccounts = [
-    { id: 1, name: "品牌推广-A计划", roi: 2.35, status: "投放中", isActive: true, budget: 5000, spent: 3245, tags: ["品牌推广", "高ROI账户"] },
+    { id: 1, name: "品牌推广-A计划", roi: 2.35, status: "投放中", isActive: true, budget: 5000, spent: 3245, tags: ["品牌���广", "高ROI账户"] },
     { id: 2, name: "效果转化-B计划", roi: 1.82, status: "投放中", isActive: true, budget: 8000, spent: 7890, tags: ["效果转化"] },
     { id: 3, name: "拉新活动-C计划", roi: 0.95, status: "已暂停", isActive: false, budget: 3000, spent: 0, tags: ["拉新活动", "低消耗测试"] },
     { id: 4, name: "品牌推广-D计划", roi: 3.12, status: "投放中", isActive: true, budget: 10000, spent: 6500, tags: ["品牌推广", "高ROI账户"] },
