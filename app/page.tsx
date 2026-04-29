@@ -690,7 +690,7 @@ function AccountPage({ goToBatchBudget, goToSmartOptimization }: { goToBatchBudg
   // 筛选面板状态
   const [showFilterSheet, setShowFilterSheet] = useState(false)
   const [selectedTime, setSelectedTime] = useState("今天")
-  const [selectedTags, setSelectedTags] = useState<string[]>(["不限���签"])
+  const [selectedTags, setSelectedTags] = useState<string[]>(["不限标签"])
   const [selectedSort, setSelectedSort] = useState("花费最高")
 
   // 搜索状态
@@ -699,7 +699,7 @@ function AccountPage({ goToBatchBudget, goToSmartOptimization }: { goToBatchBudg
   const [recentSearches] = useState(["品牌推广A", "效果计划B"])
 
   // 时间选项
-  const timeOptions = ["今天", "昨天", "近7天", "本���", "本月", "上月", "自定义时间"]
+  const timeOptions = ["今天", "昨天", "近7天", "本周", "本月", "上月", "自定义时间"]
   // 标签选项
   const tagOptions = ["不限标签", "品牌推广", "效果转化", "拉新活动", "高ROI账户", "低消耗测试"]
   // 排序选项
