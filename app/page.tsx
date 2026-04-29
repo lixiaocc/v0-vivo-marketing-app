@@ -4,7 +4,7 @@ import { Bell, ChevronDown, Home, User, Wallet } from "lucide-react"
 
 export default function VivoHomePage() {
   return (
-    <div className="w-[393px] min-h-screen bg-gray-100 mx-auto relative pb-20">
+    <div className="w-[393px] min-h-screen bg-gray-100 mx-auto relative pb-[72px] overflow-x-hidden">
       {/* 顶部导航 */}
       <header className="bg-white px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -24,9 +24,9 @@ export default function VivoHomePage() {
       </header>
 
       {/* 内容区域 */}
-      <main className="px-4 py-3 space-y-3">
+      <main className="px-4 py-3 space-y-3 flex flex-col items-center">
         {/* 数据卡片 */}
-        <div className="bg-white rounded-lg p-4 w-[361px]">
+        <div className="bg-white rounded-lg p-4 w-[361px] mx-auto">
           {/* 账户选择器 */}
           <div className="flex items-center gap-1 mb-3">
             <span className="text-sm text-gray-600">全部账户</span>
@@ -61,7 +61,7 @@ export default function VivoHomePage() {
         </div>
 
         {/* 数据概览标题 */}
-        <div className="flex items-center justify-between pt-2">
+        <div className="flex items-center justify-between pt-2 w-[361px]">
           <h2 className="text-base font-medium text-gray-800">数据概览</h2>
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1">
@@ -73,7 +73,7 @@ export default function VivoHomePage() {
         </div>
 
         {/* 图表占位区域1 */}
-        <div className="bg-white rounded-lg w-[361px] h-[160px] flex items-center justify-center relative overflow-hidden">
+        <div className="bg-white rounded-lg w-[361px] h-[160px] flex items-center justify-center relative overflow-hidden mx-auto">
           {/* X占位符 */}
           <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none">
             <line x1="0" y1="0" x2="100%" y2="100%" stroke="#d1d5db" strokeWidth="1" />
@@ -83,7 +83,7 @@ export default function VivoHomePage() {
         </div>
 
         {/* 图表占位区域2 */}
-        <div className="bg-white rounded-lg w-[361px] h-[160px] flex items-center justify-center relative overflow-hidden">
+        <div className="bg-white rounded-lg w-[361px] h-[160px] flex items-center justify-center relative overflow-hidden mx-auto">
           {/* X占位符 */}
           <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none">
             <line x1="0" y1="0" x2="100%" y2="100%" stroke="#d1d5db" strokeWidth="1" />
@@ -94,8 +94,8 @@ export default function VivoHomePage() {
       </main>
 
       {/* 底部导航 */}
-      <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-[393px] bg-white border-t border-gray-200 py-2 px-4">
-        <div className="flex justify-around items-center">
+      <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-[393px] h-[72px] bg-white border-t border-gray-200 px-4 flex items-center">
+        <div className="flex justify-around items-center w-full">
           <div className="flex flex-col items-center">
             <div className="w-16 h-8 bg-blue-500 rounded-full flex items-center justify-center">
               <Home className="w-4 h-4 text-white" />
