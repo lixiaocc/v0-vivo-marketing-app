@@ -401,10 +401,10 @@ function HomePage({ goToBatchBudget }: { goToBatchBudget: (source: string) => vo
           </div>
         </div>
 
-        {/* 动态图表区域 */}
+        {/* 指标图表区域 - 纵向滚动 */}
         {selectedMetrics.length === 0 ? (
           /* 无选中指标 - 显示提示 */
-          <div className="bg-white rounded-lg w-[361px] h-[160px] flex items-center justify-center">
+          <div className="bg-white rounded-xl w-[361px] h-[140px] flex items-center justify-center">
             <div className="text-center">
               <div className="text-gray-400 text-sm mb-2">暂无数据</div>
               <button onClick={handleOpenSheet} className="text-blue-500 text-sm">
@@ -412,115 +412,95 @@ function HomePage({ goToBatchBudget }: { goToBatchBudget: (source: string) => vo
               </button>
             </div>
           </div>
-        ) : selectedMetrics.length === 1 ? (
-          /* 单个指标 - 大趋势图 */
-          <div className="bg-white rounded-lg w-[361px] p-4">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-sm font-medium text-gray-800">
-                {selectedMetrics[0].name}趋势（{selectedDateRange}）
-              </span>
-              <span className="text-lg font-medium text-blue-500">
-                {selectedMetrics[0].name.includes("元") ? "¥" : ""}{getCurrentMetricValue(selectedMetrics[0].name).toLocaleString()}
-                {selectedMetrics[0].name.includes("率") ? "%" : ""}
-              </span>
-            </div>
-            {/* 模拟折线图 */}
-            <div className="h-[120px] flex items-end gap-1">
-              {getMetricTrendData(selectedMetrics[0].name).map((value, index, arr) => {
-                const max = Math.max(...arr)
-                const height = max > 0 ? (value / max) * 100 : 0
-                return (
-                  <div 
-                    key={index} 
-                    className="flex-1 bg-blue-100 rounded-t relative group"
-                    style={{ height: `${Math.max(height, 5)}%` }}
-                  >
-                    <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 whitespace-nowrap">
-                      {value.toLocaleString()}
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        ) : selectedMetrics.length <= 3 ? (
-          /* 2-3个指标 - 组合展示 */
-          <div className="w-[361px] space-y-3">
-            {/* 主指标趋势图 */}
-            <div className="bg-white rounded-lg p-4">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-sm font-medium text-gray-800">
-                  {selectedMetrics[0].name}趋势（{selectedDateRange}）
-                </span>
-                <span className="text-lg font-medium text-blue-500">
-                  {selectedMetrics[0].name.includes("元") ? "¥" : ""}{getCurrentMetricValue(selectedMetrics[0].name).toLocaleString()}
-                  {selectedMetrics[0].name.includes("率") ? "%" : ""}
-                </span>
-              </div>
-              <div className="h-[80px] flex items-end gap-1">
-                {getMetricTrendData(selectedMetrics[0].name).map((value, index, arr) => {
-                  const max = Math.max(...arr)
-                  const height = max > 0 ? (value / max) * 100 : 0
-                  return (
-                    <div 
-                      key={index} 
-                      className="flex-1 bg-blue-100 rounded-t"
-                      style={{ height: `${Math.max(height, 5)}%` }}
-                    />
-                  )
-                })}
-              </div>
-            </div>
-            {/* 辅助指标卡片 */}
-            <div className="flex gap-3">
-              {selectedMetrics.slice(1).map((metric) => (
-                <div key={metric.id} className="flex-1 bg-white rounded-lg p-3">
-                  <div className="text-xs text-gray-500 mb-1">{metric.name}</div>
-                  <div className="text-base font-medium text-gray-800">
-                    {metric.name.includes("元") ? "¥" : ""}{getCurrentMetricValue(metric.name).toLocaleString()}
-                    {metric.name.includes("率") ? "%" : ""}
-                  </div>
-                  {/* 迷你趋势点 */}
-                  <div className="flex items-center gap-0.5 mt-2">
-                    {getMetricTrendData(metric.name).slice(0, 7).map((_, i) => (
-                      <div key={i} className="w-1.5 h-1.5 rounded-full bg-blue-400" />
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
         ) : (
-          /* 超过3个指标 - 横向滑动卡片 */
-          <div className="w-[361px]">
-            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
-              {selectedMetrics.map((metric) => (
-                <div key={metric.id} className="flex-shrink-0 w-[140px] bg-white rounded-lg p-3">
-                  <div className="text-xs text-gray-500 mb-1 truncate">{metric.name}</div>
-                  <div className="text-base font-medium text-gray-800">
-                    {metric.name.includes("元") ? "¥" : ""}{getCurrentMetricValue(metric.name).toLocaleString()}
-                    {metric.name.includes("率") ? "%" : ""}
+          /* 指标卡片列表 - 纵向排列 */
+          <div className="w-[361px] space-y-3">
+            {selectedMetrics.map((metric) => {
+              const trendData = getMetricTrendData(metric.name)
+              const currentValue = getCurrentMetricValue(metric.name)
+              const isMoneyMetric = metric.name.includes("元")
+              const isRateMetric = metric.name.includes("率")
+              
+              return (
+                <div key={metric.id} className="bg-white rounded-xl w-[361px] p-4">
+                  {/* 顶部：指标名称 + 当前数值 */}
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-sm font-medium text-gray-800">{metric.name}</span>
+                    <span className="text-lg font-medium text-blue-500">
+                      {isMoneyMetric ? "¥" : ""}{currentValue.toLocaleString()}{isRateMetric ? "%" : ""}
+                    </span>
                   </div>
-                  {/* 迷你折线 */}
-                  <div className="h-[30px] flex items-end gap-0.5 mt-2">
-                    {getMetricTrendData(metric.name).slice(0, 7).map((value, index, arr) => {
-                      const max = Math.max(...arr)
-                      const height = max > 0 ? (value / max) * 100 : 0
-                      return (
-                        <div 
-                          key={index} 
-                          className="flex-1 bg-blue-200 rounded-t"
-                          style={{ height: `${Math.max(height, 10)}%` }}
-                        />
-                      )
-                    })}
+                  
+                  {/* 折线图区域 */}
+                  <div className="h-[70px] relative">
+                    {/* SVG折线图 */}
+                    <svg className="w-full h-full" viewBox="0 0 320 70" preserveAspectRatio="none">
+                      {/* 背景网格线 */}
+                      <line x1="0" y1="23" x2="320" y2="23" stroke="#f0f0f0" strokeWidth="1" />
+                      <line x1="0" y1="46" x2="320" y2="46" stroke="#f0f0f0" strokeWidth="1" />
+                      
+                      {/* 折线路径 */}
+                      {(() => {
+                        const maxVal = Math.max(...trendData)
+                        const minVal = Math.min(...trendData)
+                        const range = maxVal - minVal || 1
+                        const points = trendData.map((val, i) => {
+                          const x = trendData.length > 1 ? (i / (trendData.length - 1)) * 320 : 160
+                          const y = 65 - ((val - minVal) / range) * 55
+                          return `${x},${y}`
+                        }).join(" ")
+                        
+                        // 填充区域路径
+                        const areaPath = `M0,65 L${trendData.map((val, i) => {
+                          const x = trendData.length > 1 ? (i / (trendData.length - 1)) * 320 : 160
+                          const y = 65 - ((val - minVal) / range) * 55
+                          return `${x},${y}`
+                        }).join(" L")} L320,65 Z`
+                        
+                        return (
+                          <>
+                            {/* 填充区域 */}
+                            <path d={areaPath} fill="url(#blueGradient)" opacity="0.3" />
+                            {/* 折线 */}
+                            <polyline
+                              points={points}
+                              fill="none"
+                              stroke="#1677FF"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                            {/* 数据点 */}
+                            {trendData.map((val, i) => {
+                              const x = trendData.length > 1 ? (i / (trendData.length - 1)) * 320 : 160
+                              const y = 65 - ((val - minVal) / range) * 55
+                              return (
+                                <circle
+                                  key={i}
+                                  cx={x}
+                                  cy={y}
+                                  r="3"
+                                  fill="white"
+                                  stroke="#1677FF"
+                                  strokeWidth="2"
+                                />
+                              )
+                            })}
+                          </>
+                        )
+                      })()}
+                      {/* 渐变定义 */}
+                      <defs>
+                        <linearGradient id="blueGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                          <stop offset="0%" stopColor="#1677FF" stopOpacity="0.4" />
+                          <stop offset="100%" stopColor="#1677FF" stopOpacity="0" />
+                        </linearGradient>
+                      </defs>
+                    </svg>
                   </div>
                 </div>
-              ))}
-            </div>
-            <div className="text-center text-xs text-gray-400 mt-2">
-              已选 {selectedMetrics.length} 个指标，左右滑动查看更多
-            </div>
+              )
+            })}
           </div>
         )}
       </main>
