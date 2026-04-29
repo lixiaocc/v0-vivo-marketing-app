@@ -372,7 +372,7 @@ function HomePage({ goToBatchBudget }: { goToBatchBudget: (source: string) => vo
                   <div className="w-2 h-2 rounded-full bg-green-400" />
                   <span className="text-sm text-gray-600">{currentAccountData.availableBalance.toFixed(2)}</span>
                 </div>
-                <div className="text-xs text-gray-400 mt-1">可用余额</div>
+                <div className="text-xs text-gray-400 mt-1">可用余��</div>
               </div>
             </div>
           </div>
@@ -697,14 +697,14 @@ function AccountPage({ goToBatchBudget, goToSmartOptimization }: { goToBatchBudg
   // 搜索状态
   const [isSearching, setIsSearching] = useState(false)
   const [searchKeyword, setSearchKeyword] = useState("")
-  const [recentSearches] = useState(["品牌推广A", "转化计划B"])
+  const [recentSearches] = useState(["品牌推广A", "转��计划B"])
 
   // 时间选项
   const timeOptions = ["今天", "昨天", "近7天", "本周", "本月", "上月", "自定义时间"]
   // 标签选项
   const tagOptions = ["不限标签", "品牌推广", "效果转化", "拉新活动", "高ROI账户", "低消耗测试"]
   // 排序选项
-  const sortOptions = ["花费最高", "花费最低", "ROI最高", "ROI最低", "点击率最高", "转化率最高", "最新创建", "最���活跃"]
+  const sortOptions = ["花费最高", "花费最低", "ROI最高", "ROI最低", "点击率最高", "转化率最高", "最新创建"]
 
   // 切换标签选择
   const toggleTag = (tag: string) => {
@@ -1256,7 +1256,7 @@ function SmartOptimizationPage({ onBack, goToBatchBudget }: { onBack: () => void
     },
     {
       id: 3,
-      accountName: "拉新活动-C计划",
+      accountName: "拉新活动-C���划",
       riskStatus: "ROI偏低",
       riskColor: "text-orange-500",
       currentBudget: 1000,
@@ -1710,14 +1710,14 @@ function BatchBudgetPage({ source, recommendedBudgets = [], onBack }: { source: 
               clipRule="evenodd"
             />
           </svg>
-          <p className="text-xs text-amber-600">��量修改预算可能影响投放稳定性，请确认调整策略</p>
+          <p className="text-xs text-amber-600">修改预算可能影响投放稳定性，请确认调整策略</p>
         </div>
       </main>
 
       {/* 底部确认按钮 */}
       <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-[393px] h-[72px] bg-white border-t border-gray-200 px-4 flex items-center">
         <button onClick={handleSubmit} className="w-full py-3 bg-blue-500 text-white text-sm rounded-lg">
-          确认��改
+          确认修改
         </button>
       </div>
     </div>
