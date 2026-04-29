@@ -215,7 +215,7 @@ function HomePage({ goToBatchBudget }: { goToBatchBudget: (source: string) => vo
           <div className="w-10 h-10 rounded-full bg-gray-300" />
           <div>
             <div className="text-sm font-medium text-gray-800">vivo应用商店超管</div>
-            <div className="text-xs text-blue-500">直属组织</div>
+            <div className="text-xs text-blue-500">当前组织</div>
           </div>
         </div>
         <div className="flex items-center gap-4">
@@ -397,80 +397,71 @@ function HomePage({ goToBatchBudget }: { goToBatchBudget: (source: string) => vo
         </div>
       </main>
 
-      {/* 消息通知面板 */}
+      {/* 消息通知页面（全屏覆盖） */}
       {showNotificationPanel && (
-        <>
-          <div 
-            className="fixed inset-0 bg-black/30 z-40" 
-            onClick={() => setShowNotificationPanel(false)} 
-          />
-          <div className="fixed top-0 right-0 w-[320px] h-full bg-white z-50 shadow-xl flex flex-col">
-            {/* 面板头部 */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-              <h3 className="text-base font-medium text-gray-800">消息通知</h3>
-              <div className="flex items-center gap-3">
-                <button 
-                  onClick={handleMarkAllRead}
-                  className="text-xs text-blue-500"
-                >
-                  一键已读
-                </button>
-                <button onClick={() => setShowNotificationPanel(false)}>
-                  <X className="w-5 h-5 text-gray-400" />
-                </button>
+        <div className="fixed inset-0 left-1/2 -translate-x-1/2 w-[393px] bg-gray-100 z-50 flex flex-col">
+          {/* 顶部导航 */}
+          <header className="bg-white px-4 py-3 flex items-center justify-between border-b border-gray-200">
+            <button 
+              onClick={() => setShowNotificationPanel(false)}
+              className="flex items-center gap-1 text-gray-600"
+            >
+              <ChevronLeft className="w-5 h-5" />
+              <span className="text-sm">返回</span>
+            </button>
+            <h1 className="text-base font-medium text-gray-800">消息通知</h1>
+            <button 
+              onClick={handleMarkAllRead}
+              className="text-sm text-blue-500"
+            >
+              一键已读
+            </button>
+          </header>
+          
+          {/* 消息内容区域 */}
+          <main className="flex-1 overflow-y-auto p-4">
+            <div className={`bg-amber-50 border border-amber-200 rounded-lg p-4 ${hasUnread ? "" : "opacity-60"}`}>
+              {/* 消息类型标签 */}
+              <div className="flex items-center gap-2 mb-3">
+                {hasUnread && <span className="w-2 h-2 bg-red-500 rounded-full" />}
+                <span className="text-xs text-amber-600 bg-amber-100 px-2 py-0.5 rounded">预算撞线预警</span>
               </div>
-            </div>
-            
-            {/* 消息内容 */}
-            <div className="flex-1 overflow-y-auto p-4">
-              <div className={`bg-amber-50 border border-amber-200 rounded-lg p-4 ${hasUnread ? "" : "opacity-60"}`}>
-                {/* 消息类型标签 */}
-                <div className="flex items-center gap-2 mb-2">
-                  {hasUnread && <span className="w-2 h-2 bg-red-500 rounded-full" />}
-                  <span className="text-xs text-amber-600 bg-amber-100 px-2 py-0.5 rounded">预算撞线预警</span>
-                </div>
-                
-                {/* 消息标题 */}
-                <h4 className={`text-sm font-medium mb-1 ${hasUnread ? "text-gray-800" : "text-gray-500"}`}>
-                  预算即将耗尽
-                </h4>
-                
-                {/* 消息内容 */}
-                <p className={`text-xs mb-3 ${hasUnread ? "text-gray-600" : "text-gray-400"}`}>
-                  3个账户预算即将耗尽，请及时调整预算
-                </p>
-                
-                {/* 账户列表 */}
-                <div className="space-y-2 mb-4">
-                  {notifications.map((item) => (
-                    <div key={item.id} className="flex items-center justify-between text-xs">
-                      <span className={hasUnread ? "text-gray-700" : "text-gray-400"}>{item.account}</span>
-                      <span className={hasUnread ? "text-gray-500" : "text-gray-400"}>
-                        已消耗 ¥{item.spent.toLocaleString()} / 预算 ¥{item.budget.toLocaleString()}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-                
-                {/* 操作按钮 */}
-                <div className="flex gap-2">
-                  <button className="flex-1 py-2 text-xs text-gray-600 bg-gray-100 rounded-lg">
-                    查看详情
-                  </button>
-                  <button 
-                    onClick={() => {
-                      setShowNotificationPanel(false)
-                      goToBatchBudget("来自消息通知")
-                    }}
-                    className="flex-1 py-2 text-xs text-white bg-blue-500 rounded-lg"
-                  >
-                    去调整预算
-                  </button>
-                </div>
+              
+              {/* 消息标题 */}
+              <h4 className={`text-sm font-medium mb-2 ${hasUnread ? "text-gray-800" : "text-gray-500"}`}>
+                预算即将耗尽
+              </h4>
+              
+              {/* 消息描述 */}
+              <p className={`text-xs mb-4 ${hasUnread ? "text-gray-600" : "text-gray-400"}`}>
+                3个账户预算即将耗尽，请及时调整预算
+              </p>
+              
+              {/* 账户明细 */}
+              <div className="space-y-3 mb-4">
+                {notifications.map((item) => (
+                  <div key={item.id} className="flex items-center justify-between text-xs">
+                    <span className={hasUnread ? "text-gray-700" : "text-gray-400"}>{item.account}</span>
+                    <span className={hasUnread ? "text-gray-500" : "text-gray-400"}>
+                      已消耗 ¥{item.spent.toLocaleString()} / 预算 ¥{item.budget.toLocaleString()}
+                    </span>
+                  </div>
+                ))}
               </div>
+              
+              {/* 操作按钮 */}
+              <button 
+                onClick={() => {
+                  setShowNotificationPanel(false)
+                  goToBatchBudget("来自消息通知")
+                }}
+                className="w-full py-2.5 text-sm text-white bg-blue-500 rounded-lg"
+              >
+                去调整预算
+              </button>
             </div>
-          </div>
-        </>
+          </main>
+        </div>
       )}
 
       {/* 自定义指标弹层 */}
