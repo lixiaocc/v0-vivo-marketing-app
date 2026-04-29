@@ -1,13 +1,25 @@
 "use client"
 
 import Link from "next/link"
+import { Bell, Shield, FileText, Settings, HelpCircle, Info, LogOut, ChevronRight } from "lucide-react"
 
 export default function ProfilePage() {
+  const menuItems = [
+    { icon: Bell, label: "消息通知" },
+    { icon: Shield, label: "账户安全" },
+    { icon: FileText, label: "操作记录" },
+    { icon: Settings, label: "偏好设置" },
+    { icon: HelpCircle, label: "帮助中心" },
+    { icon: Info, label: "关于我们" },
+    { icon: LogOut, label: "退出登录", isLogout: true },
+  ]
+
   return (
     <div className="w-[393px] min-h-screen bg-gray-100 mx-auto relative pb-[72px] overflow-x-hidden">
       {/* 顶部导航 */}
-      <header className="bg-white px-4 py-3 border-b border-gray-200">
+      <header className="bg-white px-4 py-3 flex items-center justify-between border-b border-gray-200">
         <h1 className="text-base font-medium text-gray-800">个人中心</h1>
+        <Settings className="w-5 h-5 text-gray-400" />
       </header>
 
       {/* 内容区域 */}
@@ -15,25 +27,31 @@ export default function ProfilePage() {
         {/* 用户信息卡片 */}
         <div className="w-[361px] bg-white rounded-lg p-4">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-gray-300" />
+            <div className="w-14 h-14 rounded-full bg-gray-300" />
             <div>
-              <div className="text-sm font-medium text-gray-800">vivo应用商店超管</div>
-              <div className="text-xs text-gray-500 mt-1">直属组织</div>
+              <div className="text-base font-medium text-blue-500">张经理</div>
+              <div className="text-xs text-gray-500 mt-0.5">客户管理员</div>
+              <div className="text-xs text-gray-400 mt-0.5">ID:12345678</div>
             </div>
           </div>
         </div>
 
-        {/* 功能列表占位 */}
+        {/* 菜单列表 */}
         <div className="w-[361px] bg-white rounded-lg overflow-hidden">
-          {["账户设置", "消息通知", "帮助中心", "关于我们"].map((item, index) => (
+          {menuItems.map((item, index) => (
             <div
-              key={item}
-              className={`p-4 flex items-center justify-between ${index !== 3 ? "border-b border-gray-100" : ""}`}
+              key={item.label}
+              className={`px-4 py-3.5 flex items-center justify-between cursor-pointer hover:bg-gray-50 ${
+                index !== menuItems.length - 1 ? "border-b border-gray-100" : ""
+              }`}
             >
-              <span className="text-sm text-gray-700">{item}</span>
-              <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-              </svg>
+              <div className="flex items-center gap-3">
+                <item.icon className={`w-5 h-5 ${item.isLogout ? "text-gray-500" : "text-gray-500"}`} />
+                <span className={`text-sm ${item.isLogout ? "text-gray-600" : "text-gray-700"}`}>
+                  {item.label}
+                </span>
+              </div>
+              <ChevronRight className="w-4 h-4 text-gray-400" />
             </div>
           ))}
         </div>
