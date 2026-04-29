@@ -699,7 +699,7 @@ function AccountPage({ goToBatchBudget, goToSmartOptimization }: { goToBatchBudg
   const [recentSearches] = useState(["品牌推广A", "效果计划B"])
 
   // 时间选项
-  const timeOptions = ["今天", "昨天", "近7天", "本周", "本月", "���月", "自定义时间"]
+  const timeOptions = ["今天", "昨天", "近7天", "本周", "本月", "�����月", "自定义时间"]
   // 标签选项
   const tagOptions = ["不限标签", "品牌推广", "效果转化", "拉新活动", "高ROI账户", "低消耗测试"]
   // 排序选项
@@ -858,7 +858,7 @@ function AccountPage({ goToBatchBudget, goToSmartOptimization }: { goToBatchBudg
   }
 
   return (
-    <div className="h-full flex flex-col overflow-hidden">
+    <div className="h-full flex flex-col overflow-hidden relative">
       <header className="bg-white px-4 py-3 border-b border-gray-200 flex-shrink-0">
         <h1 className="text-base font-medium text-gray-800">投放账户</h1>
       </header>
