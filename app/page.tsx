@@ -142,6 +142,20 @@ function HomePage({ goToBatchBudget }: { goToBatchBudget: (source: string) => vo
   const [selectedDateRange, setSelectedDateRange] = useState("今天")
   const dateOptions = ["今天", "昨天", "近7天", "本周", "本月", "上月"]
   
+  // 账户选择状态
+  const [showAccountDropdown, setShowAccountDropdown] = useState(false)
+  const [selectedAccount, setSelectedAccount] = useState("全部账户概况")
+  
+  // 账户数据
+  const accountData: Record<string, { totalBalance: number; availableBalance: number }> = {
+    "全部账户概况": { totalBalance: 12890.00, availableBalance: 8650.00 },
+    "品牌推广-A计划": { totalBalance: 5000.00, availableBalance: 1755.00 },
+    "效果转化-B计划": { totalBalance: 8000.00, availableBalance: 110.00 },
+    "拉新活动-C计划": { totalBalance: 1000.00, availableBalance: 50.00 },
+  }
+  const accountOptions = Object.keys(accountData)
+  const currentAccountData = accountData[selectedAccount]
+  
   // 消息数据
   const notifications = [
     { id: 1, account: "品牌推广-A计划", spent: 3245, budget: 5000 },
@@ -239,10 +253,63 @@ function HomePage({ goToBatchBudget }: { goToBatchBudget: (source: string) => vo
 
         {/* 数据卡片 */}
         <div className="bg-white rounded-lg p-4 w-[361px]">
-          <div className="flex items-center gap-1 mb-3">
-            <span className="text-sm text-gray-600">全部账户</span>
-            <ChevronDown className="w-4 h-4 text-gray-400" />
+          <div className="relative">
+            <button 
+              onClick={() => setShowAccountDropdown(!showAccountDropdown)}
+              className="flex items-center gap-1 mb-3"
+            >
+              <span className="text-sm text-gray-600">{selectedAccount === "全部账户概况" ? "全部账户" : selectedAccount}</span>
+              <ChevronDown className="w-4 h-4 text-gray-400" />
+            </button>
+            {showAccountDropdown && (
+              <>
+                <div 
+                  className="fixed inset-0 z-30" 
+                  onClick={() => setShowAccountDropdown(false)} 
+                />
+                <div className="absolute left-0 top-full bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-40 min-w-[160px]">
+                  {accountOptions.map((option) => (
+                    <button
+                      key={option}
+                      onClick={() => {
+                        setSelectedAccount(option)
+                        setShowAccountDropdown(false)
+                      }}
+                      className={`w-full px-4 py-2 text-left text-sm ${
+                        selectedAccount === option 
+                          ? "text-blue-500 bg-blue-50" 
+                          : "text-gray-600 hover:bg-gray-50"
+                      }`}
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
+          <div className="flex items-baseline gap-2 mb-4">
+            <span className="text-2xl font-medium text-gray-800">¥{currentAccountData.totalBalance.toFixed(2)}</span>
+          </div>
+          <div className="border-t border-gray-100 pt-3">
+            <div className="flex justify-around">
+              <div className="text-center">
+                <div className="flex items-center gap-1">
+                  <div className="w-2 h-2 rounded-full bg-blue-400" />
+                  <span className="text-sm text-gray-600">{currentAccountData.totalBalance.toFixed(2)}</span>
+                </div>
+                <div className="text-xs text-gray-400 mt-1">总余额</div>
+              </div>
+              <div className="text-center">
+                <div className="flex items-center gap-1">
+                  <div className="w-2 h-2 rounded-full bg-green-400" />
+                  <span className="text-sm text-gray-600">{currentAccountData.availableBalance.toFixed(2)}</span>
+                </div>
+                <div className="text-xs text-gray-400 mt-1">可用余额</div>
+              </div>
+            </div>
+          </div>
+        </div>
           <div className="flex items-baseline gap-2 mb-4">
             <span className="text-2xl font-medium text-gray-800">¥0.00</span>
           </div>
