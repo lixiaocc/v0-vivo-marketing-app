@@ -339,9 +339,9 @@ function HomePage({ goToBatchBudget }: { goToBatchBudget: (source: string) => vo
 // ==================== 账户页组件 ====================
 function AccountPage({ goToBatchBudget }: { goToBatchBudget: (source: string) => void }) {
   const accounts = [
-    { id: 1, name: "品牌推广-A计划", type: "ROI", status: "投放中", statusColor: "text-blue-500", budget: "¥5,000", spent: "¥3,245" },
-    { id: 2, name: "效果转化-B计划", type: "ROI", status: "投放中", statusColor: "text-blue-500", budget: "¥4,000", spent: "¥7,890" },
-    { id: 3, name: "拉新活动-C计划", type: "", status: "已暂停", statusColor: "text-gray-400", budget: "", spent: "" },
+    { id: 1, name: "品牌推广-A计划", roi: 2.35, status: "投放中", isActive: true, budget: 5000, spent: 3245 },
+    { id: 2, name: "效果转化-B计划", roi: 1.82, status: "投放中", isActive: true, budget: 8000, spent: 7890 },
+    { id: 3, name: "拉新活动-C计划", roi: 0.95, status: "已暂停", isActive: false, budget: 3000, spent: 0 },
   ]
 
   return (
@@ -365,34 +365,44 @@ function AccountPage({ goToBatchBudget }: { goToBatchBudget: (source: string) =>
             筛选
           </button>
         </div>
-        <div className="w-[361px] bg-white rounded-lg overflow-hidden">
-          {accounts.map((account, index) => (
-            <div key={account.id} className={`p-4 ${index !== accounts.length - 1 ? "border-b border-gray-100" : ""}`}>
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-gray-800">{account.name}</span>
-                    {account.type && (
-                      <span className="text-xs text-orange-500 bg-orange-50 px-1.5 py-0.5 rounded">{account.type}</span>
-                    )}
-                    <span className={`text-xs ${account.statusColor}`}>{account.status}</span>
+        <div className="w-[361px] space-y-3">
+          {accounts.map((account) => {
+            const progress = account.budget > 0 ? Math.min((account.spent / account.budget) * 100, 100) : 0
+            return (
+              <div key={account.id} className="bg-white rounded-xl p-4">
+                {/* 第一行：账户名称 + 状态 */}
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-gray-800">{account.name}</span>
+                  <span className={`text-xs px-2 py-0.5 rounded ${account.isActive ? "bg-blue-50 text-blue-500" : "bg-gray-100 text-gray-400"}`}>
+                    {account.status}
+                  </span>
+                </div>
+                {/* 第二行：ROI */}
+                <div className="mt-2 flex items-center gap-1">
+                  <span className="text-xs text-gray-400">ROI：</span>
+                  <span className="text-xs text-gray-700 font-medium">{account.roi.toFixed(2)}</span>
+                </div>
+                {/* 第三行：预算 + 已消耗 */}
+                <div className="mt-2 flex items-center gap-4 text-xs">
+                  <div className="flex items-center gap-1">
+                    <span className="text-gray-400">预算：</span>
+                    <span className="text-gray-700">¥{account.budget.toLocaleString()}</span>
                   </div>
-                  {account.budget && (
-                    <div className="mt-2 flex items-center gap-4 text-xs text-gray-500">
-                      <div className="flex items-center gap-1">
-                        <span>预算</span>
-                        <span className="text-gray-700">{account.budget}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <span>已消耗</span>
-                        <span className="text-orange-500">{account.spent}</span>
-                      </div>
-                    </div>
-                  )}
+                  <div className="flex items-center gap-1">
+                    <span className="text-gray-400">已消耗：</span>
+                    <span className="text-blue-500 font-medium">¥{account.spent.toLocaleString()}</span>
+                  </div>
+                </div>
+                {/* 第四行：进度条 */}
+                <div className="mt-3 w-full h-[6px] bg-[#E5E5E5] rounded-full overflow-hidden">
+                  <div 
+                    className={`h-full rounded-full ${account.isActive ? "bg-[#1677FF]" : "bg-gray-300"}`}
+                    style={{ width: `${progress}%` }}
+                  />
                 </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
         <div className="w-[361px] bg-white rounded-lg p-4">
           <h3 className="text-sm font-medium text-gray-800 mb-3">预算管理</h3>
