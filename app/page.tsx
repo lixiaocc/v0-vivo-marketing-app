@@ -474,6 +474,7 @@ function BatchBudgetPage({ source, onBack }: { source: string; onBack: () => voi
   const [percentage, setPercentage] = useState("")
   const [showSuccess, setShowSuccess] = useState(false)
   const [showSourceTip, setShowSourceTip] = useState(!!source)
+  const [showToast, setShowToast] = useState(false)
 
   const [selectedAccounts, setSelectedAccounts] = useState([
     { id: 1, name: "品牌推广-A计划", budget: "¥5,000/天", checked: false },
@@ -481,10 +482,24 @@ function BatchBudgetPage({ source, onBack }: { source: string; onBack: () => voi
     { id: 3, name: "拉新活动-C计划", budget: "¥3,000/天", checked: false },
   ])
 
+  const selectedCount = selectedAccounts.filter((a) => a.checked).length
+
   const toggleAccount = (id: number) => {
-    setSelectedAccounts((accounts) =>
-      accounts.map((acc) => (acc.id === id ? { ...acc, checked: !acc.checked } : acc))
-    )
+    const newAccounts = selectedAccounts.map((acc) => (acc.id === id ? { ...acc, checked: !acc.checked } : acc))
+    setSelectedAccounts(newAccounts)
+    // Clear inputs when all accounts are deselected
+    const newSelectedCount = newAccounts.filter((a) => a.checked).length
+    if (newSelectedCount === 0) {
+      setBudgetAmount("")
+      setPercentage("")
+    }
+  }
+
+  const handleInputClick = () => {
+    if (selectedCount === 0) {
+      setShowToast(true)
+      setTimeout(() => setShowToast(false), 2000)
+    }
   }
 
   const handleSubmit = () => {
@@ -496,10 +511,15 @@ function BatchBudgetPage({ source, onBack }: { source: string; onBack: () => voi
     onBack()
   }
 
-  const selectedCount = selectedAccounts.filter((a) => a.checked).length
-
   return (
     <div className="min-h-screen overflow-x-hidden">
+      {/* Toast提示 */}
+      {showToast && (
+        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-gray-800 text-white text-sm px-4 py-2 rounded-lg shadow-lg">
+          请先选择账户
+        </div>
+      )}
+
       {/* 来源提示 */}
       {showSourceTip && source && (
         <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 bg-blue-500 text-white text-sm px-4 py-2 rounded-lg shadow-lg">
@@ -540,7 +560,7 @@ function BatchBudgetPage({ source, onBack }: { source: string; onBack: () => voi
       {/* 步骤条 */}
       <div className="bg-white px-4 py-4 flex items-center justify-center gap-2">
         <div className="flex flex-col items-center">
-          <div className={`w-6 h-6 rounded-full text-white text-xs flex items-center justify-center ${selectedCount > 0 ? "bg-blue-500" : "bg-gray-300"}`}>
+          <div className={`w-6 h-6 rounded-full text-white text-xs flex items-center justify-center ${selectedCount > 0 ? "bg-blue-500" : "bg-blue-500"}`}>
             {selectedCount > 0 ? (
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
@@ -549,12 +569,12 @@ function BatchBudgetPage({ source, onBack }: { source: string; onBack: () => voi
               "1"
             )}
           </div>
-          <span className={`text-xs mt-1 ${selectedCount > 0 ? "text-gray-800" : "text-gray-500"}`}>选择账户</span>
+          <span className={`text-xs mt-1 ${selectedCount > 0 ? "text-gray-800" : "text-blue-500"}`}>选择账户</span>
         </div>
         <div className={`w-12 h-px ${selectedCount > 0 ? "bg-blue-500" : "bg-gray-300"}`}></div>
         <div className="flex flex-col items-center">
-          <div className="w-6 h-6 rounded-full bg-blue-500 text-white text-xs flex items-center justify-center">2</div>
-          <span className="text-xs text-blue-500 mt-1">设置预算</span>
+          <div className={`w-6 h-6 rounded-full text-white text-xs flex items-center justify-center ${selectedCount > 0 ? "bg-blue-500" : "bg-gray-300"}`}>2</div>
+          <span className={`text-xs mt-1 ${selectedCount > 0 ? "text-blue-500" : "text-gray-400"}`}>设置预算</span>
         </div>
         <div className="w-12 h-px bg-gray-300"></div>
         <div className="flex flex-col items-center">
@@ -599,22 +619,22 @@ function BatchBudgetPage({ source, onBack }: { source: string; onBack: () => voi
         </div>
 
         {/* 预算设置 */}
-        <div className="w-[361px] bg-white rounded-lg p-4">
+        <div className={`w-[361px] bg-white rounded-lg p-4 ${selectedCount === 0 ? "opacity-50" : ""}`}>
           <span className="text-sm font-medium text-gray-800">预算设置</span>
           <div className="flex gap-2 mt-3 mb-4">
             <button
-              onClick={() => setBudgetType("unified")}
+              onClick={() => selectedCount > 0 && setBudgetType("unified")}
               className={`flex-1 py-2 text-xs rounded-full border ${
                 budgetType === "unified" ? "bg-gray-100 border-gray-300 text-gray-800" : "border-gray-200 text-gray-400"
-              }`}
+              } ${selectedCount === 0 ? "cursor-not-allowed" : ""}`}
             >
               统一修改预算
             </button>
             <button
-              onClick={() => setBudgetType("percentage")}
+              onClick={() => selectedCount > 0 && setBudgetType("percentage")}
               className={`flex-1 py-2 text-xs rounded-full border ${
                 budgetType === "percentage" ? "bg-gray-100 border-gray-300 text-gray-800" : "border-gray-200 text-gray-400"
-              }`}
+              } ${selectedCount === 0 ? "cursor-not-allowed" : ""}`}
             >
               按比例调整
             </button>
@@ -622,14 +642,18 @@ function BatchBudgetPage({ source, onBack }: { source: string; onBack: () => voi
           {budgetType === "unified" ? (
             <div>
               <label className="text-xs text-gray-500 mb-2 block">新预算金额</label>
-              <div className="flex items-center border border-gray-200 rounded-lg px-3 py-2">
+              <div 
+                onClick={handleInputClick}
+                className={`flex items-center border border-gray-200 rounded-lg px-3 py-2 ${selectedCount === 0 ? "bg-gray-50 cursor-not-allowed" : ""}`}
+              >
                 <span className="text-sm text-gray-400 mr-2">¥</span>
                 <input
                   type="text"
                   placeholder="请输入金额"
                   value={budgetAmount}
                   onChange={(e) => setBudgetAmount(e.target.value)}
-                  className="flex-1 text-sm outline-none bg-transparent"
+                  disabled={selectedCount === 0}
+                  className={`flex-1 text-sm outline-none bg-transparent ${selectedCount === 0 ? "cursor-not-allowed" : ""}`}
                 />
                 <span className="text-sm text-gray-400 ml-2">/天</span>
               </div>
@@ -637,19 +661,26 @@ function BatchBudgetPage({ source, onBack }: { source: string; onBack: () => voi
           ) : (
             <div>
               <label className="text-xs text-gray-500 mb-2 block">调整比例</label>
-              <div className="flex items-center border border-gray-200 rounded-lg px-3 py-2">
+              <div 
+                onClick={handleInputClick}
+                className={`flex items-center border border-gray-200 rounded-lg px-3 py-2 ${selectedCount === 0 ? "bg-gray-50 cursor-not-allowed" : ""}`}
+              >
                 <input
                   type="text"
                   placeholder="如: +10 或 -20"
                   value={percentage}
                   onChange={(e) => setPercentage(e.target.value)}
-                  className="flex-1 text-sm outline-none bg-transparent"
+                  disabled={selectedCount === 0}
+                  className={`flex-1 text-sm outline-none bg-transparent ${selectedCount === 0 ? "cursor-not-allowed" : ""}`}
                 />
                 <span className="text-sm text-gray-400 ml-2">%</span>
               </div>
             </div>
           )}
-          <button className="w-full mt-4 py-2 border border-gray-200 rounded-lg text-sm text-gray-600">
+          <button 
+            className={`w-full mt-4 py-2 border border-gray-200 rounded-lg text-sm ${selectedCount === 0 ? "text-gray-300 cursor-not-allowed" : "text-gray-600"}`}
+            disabled={selectedCount === 0}
+          >
             提交
           </button>
         </div>
