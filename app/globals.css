@@ -123,3 +123,17 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* 底部弹出动画 */
+@keyframes slideUp {
+  from {
+    transform: translateX(-50%) translateY(100%);
+  }
+  to {
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.3s ease-out forwards;
+}

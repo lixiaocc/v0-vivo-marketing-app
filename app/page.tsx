@@ -1,10 +1,10 @@
 "use client"
 
 import { useState } from "react"
-import { Bell, ChevronDown, X, GripVertical, Search, Shield, FileText, Settings, HelpCircle, Info, LogOut, ChevronRight } from "lucide-react"
+import { Bell, ChevronDown, X, GripVertical, Search, Shield, FileText, Settings, HelpCircle, Info, LogOut, ChevronRight, ChevronLeft } from "lucide-react"
 
 // 页面类型
-type PageType = "home" | "account" | "profile" | "batchBudget"
+type PageType = "home" | "account" | "profile" | "batchBudget" | "login"
 
 // 可选指标列表
 const availableMetrics = [
@@ -33,11 +33,28 @@ const defaultSelectedMetrics = [
 export default function VivoApp() {
   const [currentPage, setCurrentPage] = useState<PageType>("home")
   const [batchBudgetSource, setBatchBudgetSource] = useState<string>("")
+  const [previousPage, setPreviousPage] = useState<PageType>("profile")
 
   // 跳转到批量设置预算页面
   const goToBatchBudget = (source: string = "") => {
     setBatchBudgetSource(source)
     setCurrentPage("batchBudget")
+  }
+
+  // 跳转到登录页
+  const goToLogin = () => {
+    setPreviousPage(currentPage)
+    setCurrentPage("login")
+  }
+
+  // 登录成功后跳转到首页
+  const handleLogin = () => {
+    setCurrentPage("home")
+  }
+
+  // 从登录页返回
+  const handleLoginBack = () => {
+    setCurrentPage(previousPage)
   }
 
   // 渲染底部TabBar
@@ -86,7 +103,7 @@ export default function VivoApp() {
       case "account":
         return <AccountPage goToBatchBudget={goToBatchBudget} />
       case "profile":
-        return <ProfilePage />
+        return <ProfilePage onLogout={goToLogin} />
       case "batchBudget":
         return (
           <BatchBudgetPage
@@ -94,6 +111,8 @@ export default function VivoApp() {
             onBack={() => setCurrentPage("account")}
           />
         )
+      case "login":
+        return <LoginPage onLogin={handleLogin} onBack={handleLoginBack} />
       default:
         return <HomePage goToBatchBudget={goToBatchBudget} />
     }
@@ -102,7 +121,7 @@ export default function VivoApp() {
   return (
     <div className="w-[393px] min-h-screen bg-gray-100 mx-auto relative">
       {renderPage()}
-      {currentPage !== "batchBudget" && renderTabBar()}
+      {currentPage !== "batchBudget" && currentPage !== "login" && renderTabBar()}
     </div>
   )
 }
@@ -338,11 +357,183 @@ function HomePage({ goToBatchBudget }: { goToBatchBudget: (source: string) => vo
 
 // ==================== 账户页组件 ====================
 function AccountPage({ goToBatchBudget }: { goToBatchBudget: (source: string) => void }) {
-  const accounts = [
-    { id: 1, name: "品牌推广-A计划", roi: 2.35, status: "投放中", isActive: true, budget: 5000, spent: 3245 },
-    { id: 2, name: "效果转化-B计划", roi: 1.82, status: "投放中", isActive: true, budget: 8000, spent: 7890 },
-    { id: 3, name: "拉新活动-C计划", roi: 0.95, status: "已暂停", isActive: false, budget: 3000, spent: 0 },
+  // 原始账户数据
+  const allAccounts = [
+    { id: 1, name: "品牌推广-A计划", roi: 2.35, status: "投放中", isActive: true, budget: 5000, spent: 3245, tags: ["品牌推广", "高ROI账户"] },
+    { id: 2, name: "效果转化-B计划", roi: 1.82, status: "投放中", isActive: true, budget: 8000, spent: 7890, tags: ["效果转化"] },
+    { id: 3, name: "拉新活动-C计划", roi: 0.95, status: "已暂停", isActive: false, budget: 3000, spent: 0, tags: ["拉新活动", "低消耗测试"] },
+    { id: 4, name: "品牌推广-D计划", roi: 3.12, status: "投放中", isActive: true, budget: 10000, spent: 6500, tags: ["品牌推广", "高ROI账户"] },
   ]
+
+  // 筛选面板状态
+  const [showFilterSheet, setShowFilterSheet] = useState(false)
+  const [selectedTime, setSelectedTime] = useState("今天")
+  const [selectedTags, setSelectedTags] = useState<string[]>(["不限标签"])
+  const [selectedSort, setSelectedSort] = useState("花费最高")
+
+  // 搜索状态
+  const [isSearching, setIsSearching] = useState(false)
+  const [searchKeyword, setSearchKeyword] = useState("")
+  const [recentSearches] = useState(["品牌推广A", "转化计划B"])
+
+  // 时间选项
+  const timeOptions = ["今天", "昨天", "近7天", "本周", "本月", "上月", "自定义时间"]
+  // 标签选项
+  const tagOptions = ["不限标签", "品牌推广", "效果转化", "拉新活动", "高ROI账户", "低消耗测试"]
+  // 排序选项
+  const sortOptions = ["花费最高", "花费最低", "ROI最高", "ROI最低", "点击率最高", "转化率最高", "最新创建", "最近活跃"]
+
+  // 切换标签选择
+  const toggleTag = (tag: string) => {
+    if (tag === "不限标签") {
+      setSelectedTags(["不限标签"])
+    } else {
+      const newTags = selectedTags.filter(t => t !== "不限标签")
+      if (newTags.includes(tag)) {
+        const filtered = newTags.filter(t => t !== tag)
+        setSelectedTags(filtered.length === 0 ? ["不限标签"] : filtered)
+      } else {
+        setSelectedTags([...newTags, tag])
+      }
+    }
+  }
+
+  // 重置筛选
+  const resetFilter = () => {
+    setSelectedTime("今天")
+    setSelectedTags(["不限标签"])
+    setSelectedSort("花费最高")
+  }
+
+  // 过滤和排序账户
+  const getFilteredAccounts = () => {
+    let filtered = [...allAccounts]
+    
+    // 搜索过滤
+    if (searchKeyword) {
+      filtered = filtered.filter(acc => acc.name.toLowerCase().includes(searchKeyword.toLowerCase()))
+    }
+    
+    // 标签过滤
+    if (!selectedTags.includes("不限标签")) {
+      filtered = filtered.filter(acc => acc.tags.some(tag => selectedTags.includes(tag)))
+    }
+    
+    // 排序
+    switch (selectedSort) {
+      case "花费最高":
+        filtered.sort((a, b) => b.spent - a.spent)
+        break
+      case "花费最低":
+        filtered.sort((a, b) => a.spent - b.spent)
+        break
+      case "ROI最高":
+        filtered.sort((a, b) => b.roi - a.roi)
+        break
+      case "ROI最低":
+        filtered.sort((a, b) => a.roi - b.roi)
+        break
+    }
+    
+    return filtered
+  }
+
+  const filteredAccounts = getFilteredAccounts()
+
+  // 搜索状态UI
+  if (isSearching) {
+    return (
+      <div className="pb-[72px] overflow-x-hidden">
+        <header className="bg-white px-4 py-3 border-b border-gray-200">
+          <div className="flex items-center gap-2">
+            <div className="flex-1 bg-gray-100 rounded-lg px-3 py-2 flex items-center gap-2">
+              <Search className="w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder="搜索账户名称"
+                value={searchKeyword}
+                onChange={(e) => setSearchKeyword(e.target.value)}
+                autoFocus
+                className="flex-1 bg-transparent text-sm outline-none"
+              />
+              {searchKeyword && (
+                <button onClick={() => setSearchKeyword("")}>
+                  <X className="w-4 h-4 text-gray-400" />
+                </button>
+              )}
+            </div>
+            <button
+              onClick={() => {
+                setIsSearching(false)
+                setSearchKeyword("")
+              }}
+              className="text-sm text-[#1677FF]"
+            >
+              取消
+            </button>
+          </div>
+        </header>
+        <main className="px-4 py-3">
+          {searchKeyword === "" ? (
+            <div className="w-[361px]">
+              <div className="text-xs text-gray-500 mb-2">最近搜索</div>
+              <div className="flex flex-wrap gap-2">
+                {recentSearches.map((item, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setSearchKeyword(item)}
+                    className="bg-gray-100 text-gray-600 text-xs px-3 py-1.5 rounded-full"
+                  >
+                    {item}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="w-[361px] space-y-3">
+              {filteredAccounts.length === 0 ? (
+                <div className="text-center text-gray-400 py-8 text-sm">暂无匹配的账户</div>
+              ) : (
+                filteredAccounts.map((account) => {
+                  const progress = account.budget > 0 ? Math.min((account.spent / account.budget) * 100, 100) : 0
+                  return (
+                    <div key={account.id} className="bg-white rounded-xl p-4">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-gray-800">{account.name}</span>
+                        <span className={`text-xs px-2 py-0.5 rounded ${account.isActive ? "bg-blue-50 text-blue-500" : "bg-gray-100 text-gray-400"}`}>
+                          {account.status}
+                        </span>
+                      </div>
+                      <div className="mt-2 flex items-center gap-1">
+                        <span className="text-xs text-gray-400">ROI：</span>
+                        <span className="text-xs text-gray-700 font-medium">{account.roi.toFixed(2)}</span>
+                      </div>
+                      <div className="mt-2 flex items-center gap-4 text-xs">
+                        <div className="flex items-center gap-1">
+                          <span className="text-gray-400">预算：</span>
+                          <span className="text-gray-700">¥{account.budget.toLocaleString()}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <span className="text-gray-400">已消耗：</span>
+                          <span className="text-blue-500 font-medium">¥{account.spent.toLocaleString()}</span>
+                        </div>
+                      </div>
+                      <div className="mt-3 w-full h-[6px] bg-[#E5E5E5] rounded-full overflow-hidden">
+                        <div 
+                          className={`h-full rounded-full ${account.isActive ? "bg-[#1677FF]" : "bg-gray-300"}`}
+                          style={{ width: `${progress}%` }}
+                        />
+                      </div>
+                    </div>
+                  )
+                })
+              )}
+            </div>
+          )}
+        </main>
+      </div>
+    )
+  }
 
   return (
     <div className="pb-[72px] overflow-x-hidden">
@@ -351,14 +542,17 @@ function AccountPage({ goToBatchBudget }: { goToBatchBudget: (source: string) =>
       </header>
       <main className="px-4 py-3 space-y-3 flex flex-col items-center">
         <div className="w-[361px] flex items-center gap-2">
-          <div className="flex-1 bg-white rounded-lg px-3 py-2 flex items-center gap-2 border border-gray-200">
-            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <circle cx="11" cy="11" r="8" strokeWidth="2" />
-              <path strokeLinecap="round" strokeWidth="2" d="m21 21-4.35-4.35" />
-            </svg>
+          <button
+            onClick={() => setIsSearching(true)}
+            className="flex-1 bg-white rounded-lg px-3 py-2 flex items-center gap-2 border border-gray-200"
+          >
+            <Search className="w-4 h-4 text-gray-400" />
             <span className="text-sm text-gray-400">搜索账户名称</span>
-          </div>
-          <button className="bg-white rounded-lg px-3 py-2 text-sm text-gray-600 border border-gray-200 flex items-center gap-1">
+          </button>
+          <button 
+            onClick={() => setShowFilterSheet(true)}
+            className="bg-white rounded-lg px-3 py-2 text-sm text-gray-600 border border-gray-200 flex items-center gap-1"
+          >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
             </svg>
@@ -366,23 +560,20 @@ function AccountPage({ goToBatchBudget }: { goToBatchBudget: (source: string) =>
           </button>
         </div>
         <div className="w-[361px] space-y-3">
-          {accounts.map((account) => {
+          {filteredAccounts.map((account) => {
             const progress = account.budget > 0 ? Math.min((account.spent / account.budget) * 100, 100) : 0
             return (
               <div key={account.id} className="bg-white rounded-xl p-4">
-                {/* 第一行：账户名称 + 状态 */}
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-gray-800">{account.name}</span>
                   <span className={`text-xs px-2 py-0.5 rounded ${account.isActive ? "bg-blue-50 text-blue-500" : "bg-gray-100 text-gray-400"}`}>
                     {account.status}
                   </span>
                 </div>
-                {/* 第二行：ROI */}
                 <div className="mt-2 flex items-center gap-1">
                   <span className="text-xs text-gray-400">ROI：</span>
                   <span className="text-xs text-gray-700 font-medium">{account.roi.toFixed(2)}</span>
                 </div>
-                {/* 第三行：预算 + 已消耗 */}
                 <div className="mt-2 flex items-center gap-4 text-xs">
                   <div className="flex items-center gap-1">
                     <span className="text-gray-400">预算：</span>
@@ -393,7 +584,6 @@ function AccountPage({ goToBatchBudget }: { goToBatchBudget: (source: string) =>
                     <span className="text-blue-500 font-medium">¥{account.spent.toLocaleString()}</span>
                   </div>
                 </div>
-                {/* 第四行：进度条 */}
                 <div className="mt-3 w-full h-[6px] bg-[#E5E5E5] rounded-full overflow-hidden">
                   <div 
                     className={`h-full rounded-full ${account.isActive ? "bg-[#1677FF]" : "bg-gray-300"}`}
@@ -423,12 +613,113 @@ function AccountPage({ goToBatchBudget }: { goToBatchBudget: (source: string) =>
           <p className="text-xs text-gray-500">已设置3个账户预算告警</p>
         </div>
       </main>
+
+      {/* 筛选面板 Bottom Sheet */}
+      {showFilterSheet && (
+        <>
+          {/* 遮罩 */}
+          <div 
+            className="fixed inset-0 bg-black/20 z-40"
+            onClick={() => setShowFilterSheet(false)}
+          />
+          {/* 面板 */}
+          <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-[393px] h-[80%] bg-white rounded-t-xl z-50 flex flex-col animate-slide-up">
+            {/* 标题区 */}
+            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+              <div className="w-6" />
+              <span className="text-base font-medium text-gray-800">筛选条件</span>
+              <button onClick={() => setShowFilterSheet(false)}>
+                <X className="w-5 h-5 text-gray-400" />
+              </button>
+            </div>
+            
+            {/* 内容区 */}
+            <div className="flex-1 overflow-y-auto px-4 py-4 space-y-6">
+              {/* 时间筛选 */}
+              <div>
+                <h4 className="text-sm font-medium text-gray-800 mb-3">时间范围</h4>
+                <div className="flex flex-wrap gap-2">
+                  {timeOptions.map((time) => (
+                    <button
+                      key={time}
+                      onClick={() => setSelectedTime(time)}
+                      className={`px-3 py-1.5 text-xs rounded-full border ${
+                        selectedTime === time 
+                          ? "bg-[#1677FF] text-white border-[#1677FF]" 
+                          : "bg-white text-gray-600 border-gray-200"
+                      }`}
+                    >
+                      {time}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* 标签筛选 */}
+              <div>
+                <h4 className="text-sm font-medium text-gray-800 mb-3">标签</h4>
+                <div className="flex flex-wrap gap-2">
+                  {tagOptions.map((tag) => (
+                    <button
+                      key={tag}
+                      onClick={() => toggleTag(tag)}
+                      className={`px-3 py-1.5 text-xs rounded-full border ${
+                        selectedTags.includes(tag) 
+                          ? "bg-[#1677FF] text-white border-[#1677FF]" 
+                          : "bg-white text-gray-600 border-gray-200"
+                      }`}
+                    >
+                      {tag}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* 排序方式 */}
+              <div>
+                <h4 className="text-sm font-medium text-gray-800 mb-3">排序方式</h4>
+                <div className="flex flex-wrap gap-2">
+                  {sortOptions.map((sort) => (
+                    <button
+                      key={sort}
+                      onClick={() => setSelectedSort(sort)}
+                      className={`px-3 py-1.5 text-xs rounded-full border ${
+                        selectedSort === sort 
+                          ? "bg-[#1677FF] text-white border-[#1677FF]" 
+                          : "bg-white text-gray-600 border-gray-200"
+                      }`}
+                    >
+                      {sort}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* 底部操作区 */}
+            <div className="px-4 py-4 border-t border-gray-100 flex gap-3">
+              <button
+                onClick={resetFilter}
+                className="flex-1 py-2.5 text-sm text-gray-600 bg-gray-100 rounded-lg"
+              >
+                重置
+              </button>
+              <button
+                onClick={() => setShowFilterSheet(false)}
+                className="flex-1 py-2.5 text-sm text-white bg-[#1677FF] rounded-lg"
+              >
+                确定
+              </button>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   )
 }
 
 // ==================== 个人中心组件 ====================
-function ProfilePage() {
+function ProfilePage({ onLogout }: { onLogout: () => void }) {
   const menuItems = [
     { icon: Bell, label: "消息通知" },
     { icon: Shield, label: "账户安全" },
@@ -460,6 +751,7 @@ function ProfilePage() {
           {menuItems.map((item, index) => (
             <div
               key={item.label}
+              onClick={item.isLogout ? onLogout : undefined}
               className={`px-4 py-3.5 flex items-center justify-between cursor-pointer hover:bg-gray-50 ${
                 index !== menuItems.length - 1 ? "border-b border-gray-100" : ""
               }`}
@@ -473,6 +765,131 @@ function ProfilePage() {
           ))}
         </div>
       </main>
+    </div>
+  )
+}
+
+// ==================== 登录页组件 ====================
+function LoginPage({ onLogin, onBack }: { onLogin: () => void; onBack: () => void }) {
+  const [account, setAccount] = useState("")
+  const [password, setPassword] = useState("")
+  const [rememberPassword, setRememberPassword] = useState(false)
+  const [autoLogin, setAutoLogin] = useState(false)
+
+  const isFormValid = account.trim() !== "" && password.trim() !== ""
+
+  const handleLogin = () => {
+    if (isFormValid) {
+      onLogin()
+    }
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-100 flex flex-col">
+      {/* 顶部导航 */}
+      <header className="bg-gray-100 px-4 py-3 flex items-center">
+        <button onClick={onBack} className="flex items-center gap-1 text-gray-600">
+          <ChevronLeft className="w-5 h-5" />
+          <span className="text-sm">登录</span>
+        </button>
+      </header>
+
+      {/* 内容区 */}
+      <main className="flex-1 flex flex-col items-center px-4 pt-12">
+        {/* Logo */}
+        <div className="flex items-center gap-2 mb-8">
+          <div className="w-8 h-8 bg-[#1677FF] rounded-lg flex items-center justify-center">
+            <span className="text-white text-xs font-bold">V</span>
+          </div>
+          <span className="text-lg font-medium text-gray-800">vivo营销</span>
+        </div>
+
+        {/* 标题 */}
+        <h1 className="text-base text-[#1677FF] mb-8">账号密码登录</h1>
+
+        {/* 表单 */}
+        <div className="w-[361px] space-y-4">
+          {/* 账号输入 */}
+          <div className="border-b border-gray-200 py-3">
+            <input
+              type="text"
+              placeholder="请输入账号"
+              value={account}
+              onChange={(e) => setAccount(e.target.value)}
+              className="w-full bg-transparent text-sm outline-none text-gray-800 placeholder:text-gray-400"
+            />
+          </div>
+
+          {/* 密码输入 */}
+          <div className="border-b border-gray-200 py-3">
+            <input
+              type="password"
+              placeholder="请输入密码"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full bg-transparent text-sm outline-none text-gray-800 placeholder:text-gray-400"
+            />
+          </div>
+
+          {/* 记住密码 & 自动登录 */}
+          <div className="flex items-center justify-between py-2">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <button
+                onClick={() => setRememberPassword(!rememberPassword)}
+                className={`w-4 h-4 rounded border flex items-center justify-center ${
+                  rememberPassword ? "bg-[#1677FF] border-[#1677FF]" : "border-gray-300"
+                }`}
+              >
+                {rememberPassword && (
+                  <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                )}
+              </button>
+              <span className="text-xs text-gray-500">记住密码</span>
+            </label>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-gray-500">自动登录</span>
+              <button
+                onClick={() => setAutoLogin(!autoLogin)}
+                className={`w-10 h-5 rounded-full relative transition-colors ${
+                  autoLogin ? "bg-[#1677FF]" : "bg-gray-300"
+                }`}
+              >
+                <div 
+                  className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${
+                    autoLogin ? "translate-x-5" : "translate-x-0.5"
+                  }`}
+                />
+              </button>
+            </div>
+          </div>
+
+          {/* 登录按钮 */}
+          <button
+            onClick={handleLogin}
+            disabled={!isFormValid}
+            className={`w-full py-3 rounded-lg text-sm font-medium transition-colors ${
+              isFormValid 
+                ? "bg-[#1677FF] text-white" 
+                : "bg-gray-200 text-gray-400 cursor-not-allowed"
+            }`}
+          >
+            登录
+          </button>
+
+          {/* 底部链接 */}
+          <div className="flex items-center justify-between pt-2">
+            <button className="text-xs text-[#1677FF]">忘记密码？</button>
+            <button className="text-xs text-[#1677FF]">注册账号</button>
+          </div>
+        </div>
+      </main>
+
+      {/* 底部文字 */}
+      <footer className="py-6 text-center">
+        <span className="text-xs text-gray-400">vivo营销平台</span>
+      </footer>
     </div>
   )
 }
