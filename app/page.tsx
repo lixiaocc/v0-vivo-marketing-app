@@ -310,28 +310,6 @@ function HomePage({ goToBatchBudget }: { goToBatchBudget: (source: string) => vo
             </div>
           </div>
         </div>
-          <div className="flex items-baseline gap-2 mb-4">
-            <span className="text-2xl font-medium text-gray-800">¥0.00</span>
-          </div>
-          <div className="border-t border-gray-100 pt-3">
-            <div className="flex justify-around">
-              <div className="text-center">
-                <div className="flex items-center gap-1">
-                  <div className="w-2 h-2 rounded-full bg-blue-400" />
-                  <span className="text-sm text-gray-600">0.00</span>
-                </div>
-                <div className="text-xs text-gray-400 mt-1">总余额</div>
-              </div>
-              <div className="text-center">
-                <div className="flex items-center gap-1">
-                  <div className="w-2 h-2 rounded-full bg-cyan-400" />
-                  <span className="text-sm text-gray-600">0.00</span>
-                </div>
-                <div className="text-xs text-gray-400 mt-1">可用余额</div>
-              </div>
-            </div>
-          </div>
-        </div>
 
         {/* 数据概览标题 */}
         <div className="flex items-center justify-between pt-2 w-[361px]">
