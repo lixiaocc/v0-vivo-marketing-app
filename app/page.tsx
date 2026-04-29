@@ -699,7 +699,7 @@ function AccountPage({ goToBatchBudget, goToSmartOptimization }: { goToBatchBudg
   const [recentSearches] = useState(["品牌推广A", "效果计划B"])
 
   // 时间选项
-  const timeOptions = ["今天", "昨天", "近7天", "本周", "本月", "���������月", "自定义时间"]
+  const timeOptions = ["今天", "昨天", "近7天", "本周", "本月", "上月", "自定义时间"]
   // 标签选项
   const tagOptions = ["不限标签", "品牌推广", "效果转化", "拉新活动", "高ROI账户", "低消耗测试"]
   // 排序选项
@@ -1079,7 +1079,7 @@ function ProfilePage({ onLogout }: { onLogout: () => void }) {
     { icon: FileText, label: "操作记录" },
     { icon: Settings, label: "偏好设置" },
     { icon: HelpCircle, label: "帮助中心" },
-    { icon: Info, label: "关于我们" },
+    { icon: Info, label: "关于���们" },
     { icon: LogOut, label: "退出登录", isLogout: true },
   ]
 
@@ -1623,7 +1623,7 @@ function BatchBudgetPage({ source, recommendedBudgets = [], onBack }: { source: 
         </div>
       </div>
 
-      {/* 内容区域 */}
+      {/* 内容���域 */}
       <main className="flex-1 overflow-y-auto px-4 py-3 space-y-3 flex flex-col items-center pb-[90px] custom-scrollbar">
         {/* 已选账户 */}
         <div className="w-[361px] bg-white rounded-lg p-4">
