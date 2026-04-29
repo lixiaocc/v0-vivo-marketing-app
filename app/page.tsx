@@ -372,7 +372,7 @@ function HomePage({ goToBatchBudget }: { goToBatchBudget: (source: string) => vo
                   <div className="w-2 h-2 rounded-full bg-green-400" />
                   <span className="text-sm text-gray-600">{currentAccountData.availableBalance.toFixed(2)}</span>
                 </div>
-                <div className="text-xs text-gray-400 mt-1">可用余����</div>
+                <div className="text-xs text-gray-400 mt-1">可用余额</div>
               </div>
             </div>
           </div>
@@ -681,7 +681,7 @@ function HomePage({ goToBatchBudget }: { goToBatchBudget: (source: string) => vo
 function AccountPage({ goToBatchBudget, goToSmartOptimization }: { goToBatchBudget: (source: string, budgets?: RecommendedBudget[]) => void; goToSmartOptimization: () => void }) {
   // 原始账户数据
   const allAccounts = [
-    { id: 1, name: "品牌推广-A计划", roi: 2.35, status: "投放中", isActive: true, budget: 5000, spent: 3245, tags: ["品牌���广", "高ROI账户"] },
+    { id: 1, name: "品牌推广-A计划", roi: 2.35, status: "投放中", isActive: true, budget: 5000, spent: 3245, tags: ["品牌推广", "高ROI账户"] },
     { id: 2, name: "效果转化-B计划", roi: 1.82, status: "投放中", isActive: true, budget: 8000, spent: 7890, tags: ["效果转化"] },
     { id: 3, name: "拉新活动-C计划", roi: 0.95, status: "已暂停", isActive: false, budget: 3000, spent: 0, tags: ["拉新活动", "低消耗测试"] },
     { id: 4, name: "品牌推广-D计划", roi: 3.12, status: "投放中", isActive: true, budget: 10000, spent: 6500, tags: ["品牌推广", "高ROI账户"] },
@@ -696,10 +696,10 @@ function AccountPage({ goToBatchBudget, goToSmartOptimization }: { goToBatchBudg
   // 搜索状态
   const [isSearching, setIsSearching] = useState(false)
   const [searchKeyword, setSearchKeyword] = useState("")
-  const [recentSearches] = useState(["品牌推广A", "����计划B"])
+  const [recentSearches] = useState(["品牌推广A", "效果计划B"])
 
   // 时间选项
-  const timeOptions = ["今天", "昨天", "近7天", "本周", "本月", "上月", "自定义时间"]
+  const timeOptions = ["今天", "昨天", "近7天", "本���", "本月", "上月", "自定义时间"]
   // 标签选项
   const tagOptions = ["不限标签", "品牌推广", "效果转化", "拉新活动", "高ROI账户", "低消耗测试"]
   // 排序选项
@@ -1255,7 +1255,7 @@ function SmartOptimizationPage({ onBack, goToBatchBudget }: { onBack: () => void
     },
     {
       id: 3,
-      accountName: "拉新活动-C�����",
+      accountName: "拉新活动-C计划",
       riskStatus: "ROI偏低",
       riskColor: "text-orange-500",
       currentBudget: 1000,
