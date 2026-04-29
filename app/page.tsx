@@ -690,7 +690,7 @@ function AccountPage({ goToBatchBudget, goToSmartOptimization }: { goToBatchBudg
   // 筛选面板状态
   const [showFilterSheet, setShowFilterSheet] = useState(false)
   const [selectedTime, setSelectedTime] = useState("今天")
-  const [selectedTags, setSelectedTags] = useState<string[]>(["不限标签"])
+  const [selectedTags, setSelectedTags] = useState<string[]>(["不限���签"])
   const [selectedSort, setSelectedSort] = useState("花费最高")
 
   // 搜索状态
@@ -1262,8 +1262,8 @@ function SmartOptimizationPage({ onBack, goToBatchBudget }: { onBack: () => void
       spent: 950,
       remaining: 50,
       roi: 0.95,
-      recommendedBudget: 700,
-      reason: "ROI低于预期，建议控制预算避免无效消耗",
+      recommendedBudget: 0,
+      reason: "ROI低于预期，建议登录营销平台进行优化广告",
       status: "pending" as "pending" | "adopted" | "ignored"
     }
   ])
@@ -1273,7 +1273,7 @@ function SmartOptimizationPage({ onBack, goToBatchBudget }: { onBack: () => void
   // 统计数据
   const riskCount = suggestions.filter(s => s.riskStatus.includes("风险") || s.riskStatus.includes("耗尽")).length
   const upAdjustCount = suggestions.filter(s => s.recommendedBudget > s.currentBudget).length
-  const downAdjustCount = suggestions.filter(s => s.recommendedBudget < s.currentBudget).length
+  const optimizeCount = suggestions.filter(s => s.riskStatus === "ROI偏低").length
   
   // 采纳建议
   const handleAdopt = (id: number) => {
@@ -1339,8 +1339,8 @@ function SmartOptimizationPage({ onBack, goToBatchBudget }: { onBack: () => void
               <div className="text-lg font-medium text-green-500">{upAdjustCount}</div>
             </div>
             <div className="bg-gray-50 rounded-lg p-3">
-              <div className="text-xs text-gray-500">建议下调预算</div>
-              <div className="text-lg font-medium text-orange-500">{downAdjustCount}</div>
+              <div className="text-xs text-gray-500">建议优化</div>
+              <div className="text-lg font-medium text-orange-500">{optimizeCount}</div>
             </div>
           </div>
         </div>
@@ -1416,7 +1416,10 @@ function SmartOptimizationPage({ onBack, goToBatchBudget }: { onBack: () => void
                 {/* 系统建议 */}
                 <div className="bg-blue-50 rounded-lg p-3 mb-3">
                   <div className="text-xs text-blue-600 font-medium mb-1">
-                    系统建议：{suggestion.recommendedBudget > suggestion.currentBudget ? "上调" : "下调"}预算至 ¥{suggestion.recommendedBudget.toLocaleString()}
+                    {suggestion.recommendedBudget > 0 
+                      ? `系统建议：${suggestion.recommendedBudget > suggestion.currentBudget ? "上调" : "下调"}预算至 ¥${suggestion.recommendedBudget.toLocaleString()}`
+                      : "系统建议：登录营销平台进行优化广告"
+                    }
                   </div>
                   <div className="text-xs text-gray-500">{suggestion.reason}</div>
                 </div>
