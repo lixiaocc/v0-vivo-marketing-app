@@ -699,7 +699,7 @@ function AccountPage({ goToBatchBudget, goToSmartOptimization }: { goToBatchBudg
   const [recentSearches] = useState(["品牌推广A", "效果计划B"])
 
   // 时间选项
-  const timeOptions = ["今天", "昨天", "近7天", "本周", "本月", "�����月", "自定义时间"]
+  const timeOptions = ["今天", "昨天", "近7天", "本周", "本月", "�������月", "自定义时间"]
   // 标签选项
   const tagOptions = ["不限标签", "品牌推广", "效果转化", "拉新活动", "高ROI账户", "低消耗测试"]
   // 排序选项
@@ -944,11 +944,11 @@ function AccountPage({ goToBatchBudget, goToSmartOptimization }: { goToBatchBudg
         <>
           {/* 遮罩 - 限制在手机框架内 */}
           <div 
-            className="absolute inset-0 bg-black/20 z-40"
+            className="absolute top-0 left-0 right-0 bottom-0 w-[393px] h-[844px] bg-black/20 z-40"
             onClick={() => setShowFilterSheet(false)}
           />
-          {/* 面板 - 限制在手机框架内 */}
-          <div className="absolute bottom-0 left-0 w-full h-[80%] bg-white rounded-t-xl z-50 flex flex-col animate-slide-up">
+          {/* 面板 - 从底部弹出，完全贴合手机框架 */}
+          <div className="absolute bottom-0 left-0 right-0 w-[393px] h-[675px] bg-white rounded-t-xl z-50 flex flex-col animate-slide-up">
             {/* 标题区 */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
               <div className="w-6" />
