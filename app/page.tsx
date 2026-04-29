@@ -540,7 +540,7 @@ function BatchBudgetPage({ source, onBack }: { source: string; onBack: () => voi
       {/* 步骤条 */}
       <div className="bg-white px-4 py-4 flex items-center justify-center gap-2">
         <div className="flex flex-col items-center">
-          <div className={`w-6 h-6 rounded-full text-white text-xs flex items-center justify-center ${selectedCount > 0 ? "bg-gray-800" : "bg-gray-300"}`}>
+          <div className={`w-6 h-6 rounded-full text-white text-xs flex items-center justify-center ${selectedCount > 0 ? "bg-blue-500" : "bg-gray-300"}`}>
             {selectedCount > 0 ? (
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
@@ -549,12 +549,12 @@ function BatchBudgetPage({ source, onBack }: { source: string; onBack: () => voi
               "1"
             )}
           </div>
-          <span className="text-xs text-gray-500 mt-1">选择账户</span>
+          <span className={`text-xs mt-1 ${selectedCount > 0 ? "text-gray-800" : "text-gray-500"}`}>选择账户</span>
         </div>
-        <div className="w-12 h-px bg-gray-300"></div>
+        <div className={`w-12 h-px ${selectedCount > 0 ? "bg-blue-500" : "bg-gray-300"}`}></div>
         <div className="flex flex-col items-center">
-          <div className="w-6 h-6 rounded-full bg-amber-500 text-white text-xs flex items-center justify-center">2</div>
-          <span className="text-xs text-amber-500 mt-1">设置预算</span>
+          <div className="w-6 h-6 rounded-full bg-blue-500 text-white text-xs flex items-center justify-center">2</div>
+          <span className="text-xs text-blue-500 mt-1">设置预算</span>
         </div>
         <div className="w-12 h-px bg-gray-300"></div>
         <div className="flex flex-col items-center">
@@ -569,7 +569,7 @@ function BatchBudgetPage({ source, onBack }: { source: string; onBack: () => voi
         <div className="w-[361px] bg-white rounded-lg p-4">
           <div className="flex items-center justify-between mb-3">
             <span className="text-sm font-medium text-gray-800">已选账户</span>
-            <span className="text-xs text-gray-400">{selectedCount}个</span>
+            <span className="text-xs text-gray-400"><span className="text-blue-500">{selectedCount}</span>个</span>
           </div>
           <div className="space-y-3">
             {selectedAccounts.map((account) => (
@@ -577,7 +577,7 @@ function BatchBudgetPage({ source, onBack }: { source: string; onBack: () => voi
                 <button
                   onClick={() => toggleAccount(account.id)}
                   className={`w-5 h-5 rounded border flex items-center justify-center flex-shrink-0 mt-0.5 ${
-                    account.checked ? "bg-gray-800 border-gray-800" : "border-gray-300"
+                    account.checked ? "bg-blue-500 border-blue-500" : "border-gray-300"
                   }`}
                 >
                   {account.checked && (
@@ -670,7 +670,7 @@ function BatchBudgetPage({ source, onBack }: { source: string; onBack: () => voi
       {/* 底部确认按钮 */}
       <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-[393px] h-[72px] bg-white border-t border-gray-200 px-4 flex items-center">
         <button onClick={handleSubmit} className="w-full py-3 bg-blue-500 text-white text-sm rounded-lg">
-          确认修改
+          确认��改
         </button>
       </div>
     </div>
