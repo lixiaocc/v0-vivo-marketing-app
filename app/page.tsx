@@ -372,7 +372,7 @@ function HomePage({ goToBatchBudget }: { goToBatchBudget: (source: string) => vo
                   <div className="w-2 h-2 rounded-full bg-green-400" />
                   <span className="text-sm text-gray-600">{currentAccountData.availableBalance.toFixed(2)}</span>
                 </div>
-                <div className="text-xs text-gray-400 mt-1">可用余��</div>
+                <div className="text-xs text-gray-400 mt-1">可用余���</div>
               </div>
             </div>
           </div>
@@ -697,7 +697,7 @@ function AccountPage({ goToBatchBudget, goToSmartOptimization }: { goToBatchBudg
   // 搜索状态
   const [isSearching, setIsSearching] = useState(false)
   const [searchKeyword, setSearchKeyword] = useState("")
-  const [recentSearches] = useState(["品牌推广A", "转��计划B"])
+  const [recentSearches] = useState(["品牌推广A", "����计划B"])
 
   // 时间选项
   const timeOptions = ["今天", "昨天", "近7天", "本周", "本月", "上月", "自定义时间"]
@@ -1256,7 +1256,7 @@ function SmartOptimizationPage({ onBack, goToBatchBudget }: { onBack: () => void
     },
     {
       id: 3,
-      accountName: "拉新活动-C���划",
+      accountName: "拉新活动-C�����",
       riskStatus: "ROI偏低",
       riskColor: "text-orange-500",
       currentBudget: 1000,
@@ -1626,9 +1626,12 @@ function BatchBudgetPage({ source, recommendedBudgets = [], onBack }: { source: 
               </div>
             ))}
           </div>
-          <button className="w-full mt-3 py-2 border border-gray-200 rounded-lg text-xs text-gray-500">
-            重新选择账户
-          </button>
+<button 
+    onClick={() => setSelectedAccounts(prev => prev.map(acc => ({ ...acc, checked: false })))}
+    className="w-full mt-3 py-2 border border-gray-200 rounded-lg text-xs text-gray-500 hover:bg-gray-50 active:bg-gray-100 transition-colors"
+  >
+    重新选择账户
+  </button>
         </div>
 
         {/* 预算设置 */}
