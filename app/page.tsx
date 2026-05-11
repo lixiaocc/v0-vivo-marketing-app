@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Bell, ChevronDown, ChevronUp, X, GripVertical, Search, Shield, FileText, Settings, HelpCircle, Info, LogOut, ChevronRight, ChevronLeft } from "lucide-react"
+import { Bell, ChevronDown, ChevronUp, X, GripVertical, Search, Shield, FileText, Settings, HelpCircle, Info, LogOut, ChevronRight, ChevronLeft, User, RefreshCw } from "lucide-react"
 
 // 页面类型
 type PageType = "home" | "account" | "profile" | "batchBudget" | "login" | "smartOptimization" | "diagnosis"
@@ -38,7 +38,7 @@ const defaultSelectedMetrics = [
 ]
 
 export default function VivoApp() {
-  const [currentPage, setCurrentPage] = useState<PageType>("home")
+  const [currentPage, setCurrentPage] = useState<PageType>("login")
   const [batchBudgetSource, setBatchBudgetSource] = useState<string>("")
   const [previousPage, setPreviousPage] = useState<PageType>("profile")
   const [recommendedBudgets, setRecommendedBudgets] = useState<RecommendedBudget[]>([])
@@ -127,7 +127,7 @@ export default function VivoApp() {
       case "account":
         return <AccountPage goToBatchBudget={goToBatchBudget} goToSmartOptimization={goToSmartOptimization} />
       case "profile":
-        return <ProfilePage onLogout={goToLogin} />
+        return <ProfilePage onLogout={goToLogin} onSwitchAccount={goToLogin} />
       case "batchBudget":
         return (
           <BatchBudgetPage
@@ -137,7 +137,7 @@ export default function VivoApp() {
           />
         )
       case "login":
-        return <LoginPage onLogin={handleLogin} onBack={handleLoginBack} />
+        return <LoginPage onLogin={handleLogin} />
       case "smartOptimization":
         return (
           <SmartOptimizationPage
@@ -389,7 +389,7 @@ function HomePage({ goToBatchBudget }: { goToBatchBudget: (source: string) => vo
           <div className="grid grid-cols-3 gap-2 mb-4">
             {[
               { name: "曝光量", value: "45,000" },
-              { name: "点击量", value: "3,290" },
+              { name: "点击��", value: "3,290" },
               { name: "点击率", value: "7.31%" },
               { name: "千次展示均价", value: "¥23.45" },
               { name: "点击均价", value: "¥3.21" },
@@ -1064,7 +1064,7 @@ function DiagnosisPage() {
 }
 
 // ==================== 个人中心组件 ====================
-function ProfilePage({ onLogout }: { onLogout: () => void }) {
+function ProfilePage({ onLogout, onSwitchAccount }: { onLogout: () => void; onSwitchAccount: () => void }) {
   const menuItems = [
     { icon: Bell, label: "消息通知" },
     { icon: Shield, label: "账户安全" },
@@ -1072,6 +1072,7 @@ function ProfilePage({ onLogout }: { onLogout: () => void }) {
     { icon: Settings, label: "偏好设置" },
     { icon: HelpCircle, label: "帮助中心" },
     { icon: Info, label: "关于我们" },
+    { icon: RefreshCw, label: "切换账号", isSwitchAccount: true },
     { icon: LogOut, label: "退出登录", isLogout: true },
   ]
 
@@ -1096,7 +1097,7 @@ function ProfilePage({ onLogout }: { onLogout: () => void }) {
           {menuItems.map((item, index) => (
             <div
               key={item.label}
-              onClick={item.isLogout ? onLogout : undefined}
+              onClick={item.isLogout ? onLogout : item.isSwitchAccount ? onSwitchAccount : undefined}
               className={`px-4 py-3.5 flex items-center justify-between cursor-pointer hover:bg-gray-50 ${
                 index !== menuItems.length - 1 ? "border-b border-gray-100" : ""
               }`}
@@ -1114,127 +1115,44 @@ function ProfilePage({ onLogout }: { onLogout: () => void }) {
   )
 }
 
-// ==================== 登录页组件 ====================
-function LoginPage({ onLogin, onBack }: { onLogin: () => void; onBack: () => void }) {
-  const [account, setAccount] = useState("")
-  const [password, setPassword] = useState("")
-  const [rememberPassword, setRememberPassword] = useState(false)
-  const [autoLogin, setAutoLogin] = useState(false)
-
-  const isFormValid = account.trim() !== "" && password.trim() !== ""
-
-  const handleLogin = () => {
-    if (isFormValid) {
-      onLogin()
-    }
-  }
+// ==================== 登录页组件（账号选择） ====================
+function LoginPage({ onLogin }: { onLogin: () => void }) {
+  // 管理员账号列表
+  const adminAccounts = [
+    { id: 1, name: "管理员a", email: "admin-a@vivo.com" },
+    { id: 2, name: "管理员b", email: "admin-b@vivo.com" },
+    { id: 3, name: "管理员c", email: "admin-c@vivo.com" },
+  ]
 
   return (
-    <div className="h-full bg-gray-100 flex flex-col overflow-hidden">
-      {/* 顶部导航 */}
-      <header className="bg-gray-100 px-4 py-3 flex items-center flex-shrink-0">
-        <button onClick={onBack} className="flex items-center gap-1 text-gray-600">
-          <ChevronLeft className="w-5 h-5" />
-          <span className="text-sm">登录</span>
-        </button>
+    <div className="h-full bg-white flex flex-col overflow-hidden">
+      {/* 标题 */}
+      <header className="px-4 py-6 flex-shrink-0">
+        <h1 className="text-base font-medium text-gray-800">选择账号登录</h1>
       </header>
 
-      {/* 内容区 */}
-      <main className="flex-1 flex flex-col items-center px-4 pt-12 overflow-y-auto custom-scrollbar">
-        {/* Logo */}
-        <div className="flex items-center gap-2 mb-8">
-          <div className="w-8 h-8 bg-[#1677FF] rounded-lg flex items-center justify-center">
-            <span className="text-white text-xs font-bold">V</span>
-          </div>
-          <span className="text-lg font-medium text-gray-800">vivo营销</span>
-        </div>
-
-        {/* 标题 */}
-        <h1 className="text-base text-[#1677FF] mb-8">账号密码登录</h1>
-
-        {/* 表单 */}
-        <div className="w-[361px] space-y-4">
-          {/* 账号输入 */}
-          <div className="border-b border-gray-200 py-3">
-            <input
-              type="text"
-              placeholder="请输入账号"
-              value={account}
-              onChange={(e) => setAccount(e.target.value)}
-              className="w-full bg-transparent text-sm outline-none text-gray-800 placeholder:text-gray-400"
-            />
-          </div>
-
-          {/* 密码输入 */}
-          <div className="border-b border-gray-200 py-3">
-            <input
-              type="password"
-              placeholder="请输入密码"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-transparent text-sm outline-none text-gray-800 placeholder:text-gray-400"
-            />
-          </div>
-
-          {/* 记住密码 & 自动登录 */}
-          <div className="flex items-center justify-between py-2">
-            <label className="flex items-center gap-2 cursor-pointer">
-              <button
-                onClick={() => setRememberPassword(!rememberPassword)}
-                className={`w-4 h-4 rounded border flex items-center justify-center ${
-                  rememberPassword ? "bg-[#1677FF] border-[#1677FF]" : "border-gray-300"
-                }`}
-              >
-                {rememberPassword && (
-                  <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                  </svg>
-                )}
-              </button>
-              <span className="text-xs text-gray-500">记住密码</span>
-            </label>
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-500">自动登录</span>
-              <button
-                onClick={() => setAutoLogin(!autoLogin)}
-                className={`w-10 h-5 rounded-full relative transition-colors ${
-                  autoLogin ? "bg-[#1677FF]" : "bg-gray-300"
-                }`}
-              >
-                <div 
-                  className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${
-                    autoLogin ? "translate-x-5" : "translate-x-0.5"
-                  }`}
-                />
-              </button>
-            </div>
-          </div>
-
-          {/* 登录按钮 */}
-          <button
-            onClick={handleLogin}
-            disabled={!isFormValid}
-            className={`w-full py-3 rounded-lg text-sm font-medium transition-colors ${
-              isFormValid 
-                ? "bg-[#1677FF] text-white" 
-                : "bg-gray-200 text-gray-400 cursor-not-allowed"
-            }`}
-          >
-            登录
-          </button>
-
-          {/* 底部链接 */}
-          <div className="flex items-center justify-between pt-2">
-            <button className="text-xs text-[#1677FF]">忘记密码？</button>
-            <button className="text-xs text-[#1677FF]">注册账号</button>
-          </div>
+      {/* 账号列表 */}
+      <main className="flex-1 overflow-y-auto px-4">
+        <div className="space-y-0">
+          {adminAccounts.map((admin) => (
+            <button
+              key={admin.id}
+              onClick={onLogin}
+              className="w-full flex items-center gap-3 py-4 hover:bg-gray-50 transition-colors text-left"
+            >
+              {/* 头像 */}
+              <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
+                <User className="w-5 h-5 text-gray-400" />
+              </div>
+              {/* 信息 */}
+              <div>
+                <div className="text-sm text-[#1677FF] font-medium">{admin.name}</div>
+                <div className="text-xs text-gray-400 mt-0.5">{admin.email}</div>
+              </div>
+            </button>
+          ))}
         </div>
       </main>
-
-      {/* 底部文字 */}
-      <footer className="py-6 text-center">
-        <span className="text-xs text-gray-400">vivo营销平台</span>
-      </footer>
     </div>
   )
 }
