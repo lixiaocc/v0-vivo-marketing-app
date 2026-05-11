@@ -183,9 +183,8 @@ function HomePage({ goToBatchBudget }: { goToBatchBudget: (source: string) => vo
   // 账户数据
   const accountData: Record<string, { totalBalance: number; availableBalance: number }> = {
     "全部账户概况": { totalBalance: 12890.00, availableBalance: 8650.00 },
-    "品牌推广-A计划": { totalBalance: 5000.00, availableBalance: 1755.00 },
-    "效果转化-B计划": { totalBalance: 8000.00, availableBalance: 110.00 },
-    "拉新活动-C计划": { totalBalance: 1000.00, availableBalance: 50.00 },
+    "账户a": { totalBalance: 5000.00, availableBalance: 1755.00 },
+    "账户b": { totalBalance: 8000.00, availableBalance: 110.00 },
   }
   const accountOptions = Object.keys(accountData)
   const currentAccountData = accountData[selectedAccount]
@@ -194,9 +193,8 @@ function HomePage({ goToBatchBudget }: { goToBatchBudget: (source: string) => vo
   type MetricData = Record<string, Record<string, number>>
   const metricDataByAccount: MetricData = {
     "全部账户概况": { "消耗（元）": 12085, "展示数": 45000, "点击数": 3290, "点击率": 7.31, "平均千次展现费用（元）": 268.56, "转化数": 500, "平均点击单价（元）": 3.67, "激活消耗": 8500, "现金消耗": 3585, "平均转化成本": 24.17 },
-    "品牌推广-A计划": { "消耗（元）": 3245, "展示数": 12000, "点击数": 890, "点击率": 7.42, "平均千次展现费用（元）": 270.42, "转化数": 120, "平均点击单价（元）": 3.65, "激活消耗": 2200, "现金消耗": 1045, "平均转化成本": 27.04 },
-    "效果转化-B计划": { "消耗（元）": 7890, "展示数": 28000, "点击数": 2100, "点击率": 7.5, "平均千次展现费用（元）": 281.79, "转化数": 340, "平均点击单价（元）": 3.76, "激活消耗": 5500, "现金消耗": 2390, "平均转化成本": 23.21 },
-    "拉新活动-C计划": { "消耗（元）": 950, "展示数": 5000, "点击数": 300, "点击率": 6.0, "平均千次展现费用（元）": 190.0, "转化数": 40, "平均点击单价（元）": 3.17, "激活消耗": 800, "现金消耗": 150, "平均转化成本": 23.75 },
+    "账户a": { "消耗（元）": 3245, "展示数": 12000, "点击数": 890, "点击率": 7.42, "平均千次展现费用（元）": 270.42, "转化数": 120, "平均点击单价（元）": 3.65, "激活消耗": 2200, "现金消耗": 1045, "平均转化成本": 27.04 },
+    "账户b": { "消耗（元）": 7890, "展示数": 28000, "点击数": 2100, "点击率": 7.5, "平均千次展现费用（元）": 281.79, "转化数": 340, "平均点击单价（元）": 3.76, "激活消耗": 5500, "现金消耗": 2390, "平均转化成本": 23.21 },
   }
   
   // 获取趋势数据点数
@@ -421,12 +419,6 @@ function HomePage({ goToBatchBudget }: { goToBatchBudget: (source: string) => vo
             <span className="text-gray-400 text-sm">趋势图显示区域</span>
             <span className="text-gray-400 text-xs mt-1">当前选中: {selectedDateRange}</span>
           </div>
-          
-          {/* 收起趋势图按钮 */}
-          <button className="w-full mt-3 flex items-center justify-center gap-1 text-sm text-[#1677FF]">
-            <span>收起趋势图</span>
-            <ChevronUp className="w-4 h-4" />
-          </button>
         </div>
       </main>
 
@@ -442,56 +434,17 @@ function HomePage({ goToBatchBudget }: { goToBatchBudget: (source: string) => vo
               <ChevronLeft className="w-5 h-5" />
               <span className="text-sm">返回</span>
             </button>
-            <h1 className="text-base font-medium text-gray-800">消息通知</h1>
-            <button 
-              onClick={handleMarkAllRead}
-              className="text-sm text-blue-500"
-            >
-              一键已读
-            </button>
+            <h1 className="text-base font-medium text-gray-800">消息中心</h1>
+            <div className="w-12" />
           </header>
           
           {/* 消息内容区域 */}
-          <main className="flex-1 overflow-y-auto p-4">
-            <div className={`bg-amber-50 border border-amber-200 rounded-lg p-4 ${hasUnread ? "" : "opacity-60"}`}>
-              {/* 消息类型标签 */}
-              <div className="flex items-center gap-2 mb-3">
-                {hasUnread && <span className="w-2 h-2 bg-red-500 rounded-full" />}
-                <span className="text-xs text-amber-600 bg-amber-100 px-2 py-0.5 rounded">预算撞线预警</span>
-              </div>
-              
-              {/* 消息标题 */}
-              <h4 className={`text-sm font-medium mb-2 ${hasUnread ? "text-gray-800" : "text-gray-500"}`}>
-                预算即将耗尽
-              </h4>
-              
-              {/* 消息描述 */}
-              <p className={`text-xs mb-4 ${hasUnread ? "text-gray-600" : "text-gray-400"}`}>
-                3个账户预算即将耗尽，请及时调整预算
-              </p>
-              
-              {/* 账户明细 */}
-              <div className="space-y-3 mb-4">
-                {notifications.map((item) => (
-                  <div key={item.id} className="flex items-center justify-between text-xs">
-                    <span className={hasUnread ? "text-gray-700" : "text-gray-400"}>{item.account}</span>
-                    <span className={hasUnread ? "text-gray-500" : "text-gray-400"}>
-                      已消耗 ¥{item.spent.toLocaleString()} / 预算 ¥{item.budget.toLocaleString()}
-                    </span>
-                  </div>
-                ))}
-              </div>
-              
-              {/* 操作按钮 */}
-              <button 
-                onClick={() => {
-                  setShowNotificationPanel(false)
-                  goToBatchBudget("来自消息通知")
-                }}
-                className="w-full py-2.5 text-sm text-white bg-blue-500 rounded-lg"
-              >
-                去调整预算
-              </button>
+          <main className="flex-1 overflow-y-auto p-4 space-y-3">
+            <div className="bg-white rounded-lg p-4 border border-gray-100">
+              <span className="text-sm text-gray-700">消息1</span>
+            </div>
+            <div className="bg-white rounded-lg p-4 border border-gray-100">
+              <span className="text-sm text-gray-700">消息2</span>
             </div>
           </main>
         </div>
