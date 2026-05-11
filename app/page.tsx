@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Bell, ChevronDown, X, GripVertical, Search, Shield, FileText, Settings, HelpCircle, Info, LogOut, ChevronRight, ChevronLeft } from "lucide-react"
 
 // 页面类型
-type PageType = "home" | "account" | "profile" | "batchBudget" | "login" | "smartOptimization"
+type PageType = "home" | "account" | "profile" | "batchBudget" | "login" | "smartOptimization" | "diagnosis"
 
 // 推荐预算数据类型
 type RecommendedBudget = {
@@ -73,14 +73,14 @@ export default function VivoApp() {
 
   // 渲染底部TabBar
   const renderTabBar = () => (
-    <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-[393px] h-[72px] bg-white border-t border-gray-200 px-4 flex items-center z-10">
+    <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-[393px] h-[72px] bg-white border-t border-gray-200 px-2 flex items-center z-10">
       <div className="flex justify-around items-center w-full">
         <button
           onClick={() => setCurrentPage("home")}
           className="flex flex-col items-center"
         >
           {currentPage === "home" ? (
-            <span className="bg-blue-500 text-white text-xs px-4 py-1.5 rounded-full">首页</span>
+            <span className="bg-blue-500 text-white text-xs px-3 py-1.5 rounded-full">首页</span>
           ) : (
             <span className="text-xs text-gray-400">首页</span>
           )}
@@ -90,9 +90,19 @@ export default function VivoApp() {
           className="flex flex-col items-center"
         >
           {currentPage === "account" ? (
-            <span className="bg-blue-500 text-white text-xs px-4 py-1.5 rounded-full">账户</span>
+            <span className="bg-blue-500 text-white text-xs px-3 py-1.5 rounded-full">管理页</span>
           ) : (
-            <span className="text-xs text-gray-400">账户</span>
+            <span className="text-xs text-gray-400">管理页</span>
+          )}
+        </button>
+        <button
+          onClick={() => setCurrentPage("diagnosis")}
+          className="flex flex-col items-center"
+        >
+          {currentPage === "diagnosis" ? (
+            <span className="bg-blue-500 text-white text-xs px-3 py-1.5 rounded-full">诊断分析</span>
+          ) : (
+            <span className="text-xs text-gray-400">诊断分析</span>
           )}
         </button>
         <button
@@ -100,7 +110,7 @@ export default function VivoApp() {
           className="flex flex-col items-center"
         >
           {currentPage === "profile" ? (
-            <span className="bg-blue-500 text-white text-xs px-4 py-1.5 rounded-full">个人中心</span>
+            <span className="bg-blue-500 text-white text-xs px-3 py-1.5 rounded-full">个人中心</span>
           ) : (
             <span className="text-xs text-gray-400">个人中心</span>
           )}
@@ -135,6 +145,8 @@ export default function VivoApp() {
             goToBatchBudget={goToBatchBudget}
           />
         )
+      case "diagnosis":
+        return <DiagnosisPage />
       default:
         return <HomePage goToBatchBudget={goToBatchBudget} />
     }
@@ -690,7 +702,7 @@ function AccountPage({ goToBatchBudget, goToSmartOptimization }: { goToBatchBudg
   // 筛选面板状态
   const [showFilterSheet, setShowFilterSheet] = useState(false)
   const [selectedTime, setSelectedTime] = useState("今天")
-  const [selectedTags, setSelectedTags] = useState<string[]>(["不限标签"])
+  const [selectedTags, setSelectedTags] = useState<string[]>(["不限���签"])
   const [selectedSort, setSelectedSort] = useState("花费最高")
 
   // 搜索状态
@@ -699,7 +711,7 @@ function AccountPage({ goToBatchBudget, goToSmartOptimization }: { goToBatchBudg
   const [recentSearches] = useState(["品牌推广A", "效果计划B"])
 
   // 时间选项
-  const timeOptions = ["今天", "昨天", "近7天", "本周", "本月", "上月", "自定义时间"]
+  const timeOptions = ["今天", "昨天", "近7天", "本周", "本月", "���月", "自定义时间"]
   // 标签选项
   const tagOptions = ["不限标签", "品牌推广", "效果转化", "拉新活动", "高ROI账户", "低消耗测试"]
   // 排序选项
@@ -1071,7 +1083,81 @@ function AccountPage({ goToBatchBudget, goToSmartOptimization }: { goToBatchBudg
   )
 }
 
-// ==================== 个人中心��件 ====================
+// ==================== 诊断分析页组件 ====================
+function DiagnosisPage() {
+  const [activeDimension, setActiveDimension] = useState<"budget" | "promotion">("budget")
+  
+  // 诊断建议占位数据
+  const diagnosisSuggestions = [
+    { id: 1, placeholder: "诊断建议 1" },
+    { id: 2, placeholder: "诊断建议 2" },
+    { id: 3, placeholder: "诊断建议 3" },
+    { id: 4, placeholder: "诊断建议 4" },
+    { id: 5, placeholder: "诊断建议 5" },
+  ]
+
+  return (
+    <div className="h-full flex flex-col overflow-hidden relative">
+      {/* 顶部切换按钮 */}
+      <div className="bg-white px-4 py-3 flex-shrink-0">
+        <div className="flex rounded-lg overflow-hidden border border-gray-200">
+          <button
+            onClick={() => setActiveDimension("budget")}
+            className={`flex-1 py-3 text-sm font-medium transition-colors ${
+              activeDimension === "budget"
+                ? "bg-[#1677FF] text-white"
+                : "bg-white text-gray-600"
+            }`}
+          >
+            预算维度
+          </button>
+          <button
+            onClick={() => setActiveDimension("promotion")}
+            className={`flex-1 py-3 text-sm font-medium transition-colors ${
+              activeDimension === "promotion"
+                ? "bg-[#1677FF] text-white"
+                : "bg-white text-gray-600"
+            }`}
+          >
+            推广维度
+          </button>
+        </div>
+      </div>
+
+      {/* 内容区域 - 可滚动 */}
+      <main className="flex-1 overflow-y-auto px-4 py-3 space-y-3 pb-[72px] custom-scrollbar">
+        {activeDimension === "budget" ? (
+          <>
+            {/* 预算维度 - 智能诊断建议卡片 */}
+            {diagnosisSuggestions.map((suggestion) => (
+              <div
+                key={suggestion.id}
+                className="w-[361px] bg-white rounded-xl p-4"
+              >
+                <div 
+                  className="border-2 border-dashed border-gray-300 rounded-lg p-8 flex items-center justify-center min-h-[100px]"
+                >
+                  <span className="text-gray-400 text-sm">{suggestion.placeholder}</span>
+                </div>
+              </div>
+            ))}
+          </>
+        ) : (
+          <>
+            {/* 推广维度 - 占位内容 */}
+            <div className="w-[361px] bg-white rounded-xl p-4">
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 flex items-center justify-center min-h-[200px]">
+                <span className="text-gray-400 text-sm">推广维度内容待添加</span>
+              </div>
+            </div>
+          </>
+        )}
+      </main>
+    </div>
+  )
+}
+
+// ==================== 个人中心组件 ====================
 function ProfilePage({ onLogout }: { onLogout: () => void }) {
   const menuItems = [
     { icon: Bell, label: "消息通知" },
