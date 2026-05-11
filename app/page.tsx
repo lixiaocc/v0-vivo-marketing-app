@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Bell, ChevronDown, X, GripVertical, Search, Shield, FileText, Settings, HelpCircle, Info, LogOut, ChevronRight, ChevronLeft } from "lucide-react"
+import { Bell, ChevronDown, ChevronUp, X, GripVertical, Search, Shield, FileText, Settings, HelpCircle, Info, LogOut, ChevronRight, ChevronLeft } from "lucide-react"
 
 // 页面类型
 type PageType = "home" | "account" | "profile" | "batchBudget" | "login" | "smartOptimization" | "diagnosis"
@@ -315,109 +315,39 @@ function HomePage({ goToBatchBudget }: { goToBatchBudget: (source: string) => vo
 
       {/* 内容区域 - 可滚动 */}
       <main className="flex-1 overflow-y-auto px-4 py-3 space-y-3 flex flex-col items-center pb-[72px] custom-scrollbar">
-        {/* 预算预警消息卡片 */}
-        <button
-          onClick={() => goToBatchBudget("来自预算预警")}
-          className="w-[361px] bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-start gap-2 text-left hover:bg-amber-100 transition-colors"
-        >
-          <svg className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-          </svg>
-          <div>
-            <p className="text-sm text-amber-700 font-medium">预算预警</p>
-            <p className="text-xs text-amber-600 mt-0.5">3个账户预算即将耗尽，点击查看详情</p>
-          </div>
-          <ChevronRight className="w-4 h-4 text-amber-400 ml-auto mt-1" />
-        </button>
-
-        {/* 数据卡片 */}
-        <div className="bg-white rounded-lg p-4 w-[361px]">
-          <div className="relative">
-            <button 
-              onClick={() => setShowAccountDropdown(!showAccountDropdown)}
-              className="flex items-center gap-1 mb-3"
-            >
-              <span className="text-sm text-gray-600">{selectedAccount === "全部账户概况" ? "全部账户" : selectedAccount}</span>
-              <ChevronDown className="w-4 h-4 text-gray-400" />
-            </button>
-            {showAccountDropdown && (
-              <>
-                <div 
-                  className="fixed inset-0 z-30" 
-                  onClick={() => setShowAccountDropdown(false)} 
-                />
-                <div className="absolute left-0 top-full bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-40 min-w-[160px]">
-                  {accountOptions.map((option) => (
-                    <button
-                      key={option}
-                      onClick={() => {
-                        setSelectedAccount(option)
-                        setShowAccountDropdown(false)
-                      }}
-                      className={`w-full px-4 py-2 text-left text-sm ${
-                        selectedAccount === option 
-                          ? "text-blue-500 bg-blue-50" 
-                          : "text-gray-600 hover:bg-gray-50"
-                      }`}
-                    >
-                      {option}
-                    </button>
-                  ))}
-                </div>
-              </>
-            )}
-          </div>
-          <div className="flex items-baseline gap-2 mb-4">
-            <span className="text-2xl font-medium text-gray-800">¥{currentAccountData.totalBalance.toFixed(2)}</span>
-          </div>
-          <div className="border-t border-gray-100 pt-3">
-            <div className="flex justify-around">
-              <div className="text-center">
-                <div className="flex items-center gap-1">
-                  <div className="w-2 h-2 rounded-full bg-blue-400" />
-                  <span className="text-sm text-gray-600">{currentAccountData.totalBalance.toFixed(2)}</span>
-                </div>
-                <div className="text-xs text-gray-400 mt-1">总余额</div>
-              </div>
-              <div className="text-center">
-                <div className="flex items-center gap-1">
-                  <div className="w-2 h-2 rounded-full bg-green-400" />
-                  <span className="text-sm text-gray-600">{currentAccountData.availableBalance.toFixed(2)}</span>
-                </div>
-                <div className="text-xs text-gray-400 mt-1">可用余额</div>
-              </div>
-            </div>
-          </div>
+        {/* 今日数据概览标题 */}
+        <div className="w-[361px]">
+          <h2 className="text-base font-medium text-gray-800">今日数据概览</h2>
         </div>
 
-        {/* 数据概览标题 */}
-        <div className="flex items-center justify-between pt-2 w-[361px]">
-          <h2 className="text-base font-medium text-gray-800">数据概览</h2>
-          <div className="flex items-center gap-3">
+        {/* 账号概览卡片 */}
+        <div className="bg-white rounded-lg p-4 w-[361px] border border-gray-100">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-sm text-[#1677FF] font-medium">账号概览</span>
             <div className="relative">
               <button 
-                onClick={() => setShowDateDropdown(!showDateDropdown)}
+                onClick={() => setShowAccountDropdown(!showAccountDropdown)}
                 className="flex items-center gap-1"
               >
-                <span className="text-sm text-gray-500">{selectedDateRange}</span>
-                <ChevronDown className="w-4 h-4 text-gray-400" />
+                <span className="text-xs text-gray-500">{selectedAccount === "全部账户概况" ? "全部账户" : selectedAccount}</span>
+                <ChevronDown className="w-3 h-3 text-gray-400" />
               </button>
-              {showDateDropdown && (
+              {showAccountDropdown && (
                 <>
                   <div 
                     className="fixed inset-0 z-30" 
-                    onClick={() => setShowDateDropdown(false)} 
+                    onClick={() => setShowAccountDropdown(false)} 
                   />
-                  <div className="absolute right-0 top-full mt-1 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-40 min-w-[100px]">
-                    {dateOptions.map((option) => (
+                  <div className="absolute right-0 top-full mt-1 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-40 min-w-[140px]">
+                    {accountOptions.map((option) => (
                       <button
                         key={option}
                         onClick={() => {
-                          setSelectedDateRange(option)
-                          setShowDateDropdown(false)
+                          setSelectedAccount(option)
+                          setShowAccountDropdown(false)
                         }}
-                        className={`w-full px-4 py-2 text-left text-sm ${
-                          selectedDateRange === option 
+                        className={`w-full px-3 py-2 text-left text-xs ${
+                          selectedAccount === option 
                             ? "text-blue-500 bg-blue-50" 
                             : "text-gray-600 hover:bg-gray-50"
                         }`}
@@ -429,114 +359,75 @@ function HomePage({ goToBatchBudget }: { goToBatchBudget: (source: string) => vo
                 </>
               )}
             </div>
-            <button onClick={handleOpenSheet} className="text-sm text-blue-500">
-              自定义
-            </button>
+          </div>
+          <div className="mb-4">
+            <span className="text-2xl font-bold text-gray-800">¥{currentAccountData.totalBalance.toFixed(2)}</span>
+          </div>
+          <div className="flex justify-around">
+            <div className="text-center">
+              <div className="flex items-center gap-1 justify-center">
+                <div className="w-2 h-2 rounded-full bg-blue-400" />
+                <span className="text-xs text-gray-500">总余额</span>
+              </div>
+              <div className="text-sm font-medium text-gray-800 mt-1">{currentAccountData.totalBalance.toFixed(2)}</div>
+            </div>
+            <div className="text-center">
+              <div className="flex items-center gap-1 justify-center">
+                <div className="w-2 h-2 rounded-full bg-green-400" />
+                <span className="text-xs text-gray-500">可用余额</span>
+              </div>
+              <div className="text-sm font-medium text-gray-800 mt-1">{currentAccountData.availableBalance.toFixed(2)}</div>
+            </div>
           </div>
         </div>
 
-        {/* 指标图表区域 - 纵向滚动 */}
-        {selectedMetrics.length === 0 ? (
-          /* 无选中指标 - 显示提示 */
-          <div className="bg-white rounded-xl w-[361px] h-[140px] flex items-center justify-center">
-            <div className="text-center">
-              <div className="text-gray-400 text-sm mb-2">暂无数据</div>
-              <button onClick={handleOpenSheet} className="text-blue-500 text-sm">
-                请选择指标
-              </button>
-            </div>
+        {/* 数据趋势卡片 */}
+        <div className="bg-white rounded-lg p-4 w-[361px] border border-gray-100">
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-sm text-gray-800 font-medium">数据趋势</span>
           </div>
-        ) : (
-          /* 指标卡片列表 - 纵向排列 */
-          <div className="w-[361px] space-y-3">
-            {selectedMetrics.map((metric) => {
-              const trendData = getMetricTrendData(metric.name)
-              const currentValue = getCurrentMetricValue(metric.name)
-              const isMoneyMetric = metric.name.includes("元")
-              const isRateMetric = metric.name.includes("率")
-              
-              return (
-                <div key={metric.id} className="bg-white rounded-xl w-[361px] p-4">
-                  {/* 顶部：指标名称 + 当前数值 */}
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-sm font-medium text-gray-800">{metric.name}</span>
-                    <span className="text-lg font-medium text-blue-500">
-                      {isMoneyMetric ? "¥" : ""}{currentValue.toLocaleString()}{isRateMetric ? "%" : ""}
-                    </span>
-                  </div>
-                  
-                  {/* 折线图区域 */}
-                  <div className="h-[70px] relative">
-                    {/* SVG折线图 */}
-                    <svg className="w-full h-full" viewBox="0 0 320 70" preserveAspectRatio="none">
-                      {/* 背景网格线 */}
-                      <line x1="0" y1="23" x2="320" y2="23" stroke="#f0f0f0" strokeWidth="1" />
-                      <line x1="0" y1="46" x2="320" y2="46" stroke="#f0f0f0" strokeWidth="1" />
-                      
-                      {/* 折线路径 */}
-                      {(() => {
-                        const maxVal = Math.max(...trendData)
-                        const minVal = Math.min(...trendData)
-                        const range = maxVal - minVal || 1
-                        const points = trendData.map((val, i) => {
-                          const x = trendData.length > 1 ? (i / (trendData.length - 1)) * 320 : 160
-                          const y = 65 - ((val - minVal) / range) * 55
-                          return `${x},${y}`
-                        }).join(" ")
-                        
-                        // 填充区域路径
-                        const areaPath = `M0,65 L${trendData.map((val, i) => {
-                          const x = trendData.length > 1 ? (i / (trendData.length - 1)) * 320 : 160
-                          const y = 65 - ((val - minVal) / range) * 55
-                          return `${x},${y}`
-                        }).join(" L")} L320,65 Z`
-                        
-                        return (
-                          <>
-                            {/* 填充区域 */}
-                            <path d={areaPath} fill="url(#blueGradient)" opacity="0.3" />
-                            {/* 折线 */}
-                            <polyline
-                              points={points}
-                              fill="none"
-                              stroke="#1677FF"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            />
-                            {/* 数据点 */}
-                            {trendData.map((val, i) => {
-                              const x = trendData.length > 1 ? (i / (trendData.length - 1)) * 320 : 160
-                              const y = 65 - ((val - minVal) / range) * 55
-                              return (
-                                <circle
-                                  key={i}
-                                  cx={x}
-                                  cy={y}
-                                  r="3"
-                                  fill="white"
-                                  stroke="#1677FF"
-                                  strokeWidth="2"
-                                />
-                              )
-                            })}
-                          </>
-                        )
-                      })()}
-                      {/* 渐变定义 */}
-                      <defs>
-                        <linearGradient id="blueGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                          <stop offset="0%" stopColor="#1677FF" stopOpacity="0.4" />
-                          <stop offset="100%" stopColor="#1677FF" stopOpacity="0" />
-                        </linearGradient>
-                      </defs>
-                    </svg>
-                  </div>
+          
+          {/* 6个指标框 - 3x2 网格 */}
+          <div className="grid grid-cols-3 gap-2 mb-4">
+            {[
+              { name: "曝光量", value: "45,000" },
+              { name: "点击量", value: "3,290" },
+              { name: "点击率", value: "7.31%" },
+              { name: "千次展示均价", value: "¥23.45" },
+              { name: "点击均价", value: "¥3.21" },
+              { name: "花费", value: "¥12,085" },
+            ].map((item, index) => (
+              <button
+                key={item.name}
+                onClick={() => setSelectedDateRange(item.name)}
+                className={`p-3 rounded-lg border text-center transition-colors ${
+                  selectedDateRange === item.name
+                    ? "border-[#1677FF] bg-blue-50"
+                    : "border-gray-200 bg-white hover:bg-gray-50"
+                }`}
+              >
+                <div className={`text-xs mb-1 ${selectedDateRange === item.name ? "text-[#1677FF]" : "text-gray-500"}`}>
+                  {item.name}
                 </div>
-              )
-            })}
+                <div className={`text-sm font-medium ${selectedDateRange === item.name ? "text-[#1677FF]" : "text-gray-800"}`}>
+                  {item.value}
+                </div>
+              </button>
+            ))}
           </div>
-        )}
+          
+          {/* 趋势图显示区域 */}
+          <div className="border border-gray-200 rounded-lg p-4 min-h-[180px] flex flex-col items-center justify-center">
+            <span className="text-gray-400 text-sm">趋势图显示区域</span>
+            <span className="text-gray-400 text-xs mt-1">当前选中: {selectedDateRange}</span>
+          </div>
+          
+          {/* 收起趋势图按钮 */}
+          <button className="w-full mt-3 flex items-center justify-center gap-1 text-sm text-[#1677FF]">
+            <span>收起趋势图</span>
+            <ChevronUp className="w-4 h-4" />
+          </button>
+        </div>
       </main>
 
       {/* 消息通知页面（全屏覆盖） */}
@@ -702,16 +593,42 @@ function AccountPage({ goToBatchBudget, goToSmartOptimization }: { goToBatchBudg
   // 筛选面板状态
   const [showFilterSheet, setShowFilterSheet] = useState(false)
   const [selectedTime, setSelectedTime] = useState("今天")
-  const [selectedTags, setSelectedTags] = useState<string[]>(["不限���签"])
+  const [selectedTags, setSelectedTags] = useState<string[]>(["不限标签"])
   const [selectedSort, setSelectedSort] = useState("花费最高")
 
   // 搜索状态
   const [isSearching, setIsSearching] = useState(false)
   const [searchKeyword, setSearchKeyword] = useState("")
   const [recentSearches] = useState(["品牌推广A", "效果计划B"])
+  
+  // 账号管理和推广管理展开状态
+  const [isAccountExpanded, setIsAccountExpanded] = useState(true)
+  const [isPromotionExpanded, setIsPromotionExpanded] = useState(false)
+  
+  // 确认弹窗状态
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false)
+  const [selectedAccountName, setSelectedAccountName] = useState("")
+  
+  // 账号列表数据
+  const accountList = [
+    { id: 1, name: "账户a" },
+    { id: 2, name: "账户b" },
+  ]
+  
+  // 点击账号管理中的账户
+  const handleAccountClick = (accountName: string) => {
+    setSelectedAccountName(accountName)
+    setShowConfirmDialog(true)
+  }
+  
+  // 确认进入账号管理
+  const handleConfirmEnter = () => {
+    setShowConfirmDialog(false)
+    // 这里可以添加跳转逻辑
+  }
 
   // 时间选项
-  const timeOptions = ["今天", "昨天", "近7天", "本周", "本月", "���月", "自定义时间"]
+  const timeOptions = ["今天", "昨天", "近7天", "本周", "本月", "上月", "自定义时间"]
   // 标签选项
   const tagOptions = ["不限标签", "品牌推广", "效果转化", "拉新活动", "高ROI账户", "低消耗测试"]
   // 排序选项
@@ -875,6 +792,7 @@ function AccountPage({ goToBatchBudget, goToSmartOptimization }: { goToBatchBudg
         <h1 className="text-base font-medium text-gray-800">投放账户</h1>
       </header>
       <main className="flex-1 overflow-y-auto px-4 py-3 space-y-3 flex flex-col items-center pb-[72px] custom-scrollbar">
+        {/* 搜索框和筛选 */}
         <div className="w-[361px] flex items-center gap-2">
           <button
             onClick={() => setIsSearching(true)}
@@ -893,63 +811,98 @@ function AccountPage({ goToBatchBudget, goToSmartOptimization }: { goToBatchBudg
             筛选
           </button>
         </div>
-        <div className="w-[361px] space-y-3">
-          {filteredAccounts.map((account) => {
-            const progress = account.budget > 0 ? Math.min((account.spent / account.budget) * 100, 100) : 0
-            return (
-              <div key={account.id} className="bg-white rounded-xl p-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-800">{account.name}</span>
-                  <span className={`text-xs px-2 py-0.5 rounded ${account.isActive ? "bg-blue-50 text-blue-500" : "bg-gray-100 text-gray-400"}`}>
-                    {account.status}
-                  </span>
-                </div>
-                <div className="mt-2 flex items-center gap-1">
-                  <span className="text-xs text-gray-400">ROI：</span>
-                  <span className="text-xs text-gray-700 font-medium">{account.roi.toFixed(2)}</span>
-                </div>
-                <div className="mt-2 flex items-center gap-4 text-xs">
-                  <div className="flex items-center gap-1">
-                    <span className="text-gray-400">预算：</span>
-                    <span className="text-gray-700">¥{account.budget.toLocaleString()}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <span className="text-gray-400">已消耗：</span>
-                    <span className="text-blue-500 font-medium">¥{account.spent.toLocaleString()}</span>
-                  </div>
-                </div>
-                <div className="mt-3 w-full h-[6px] bg-[#E5E5E5] rounded-full overflow-hidden">
-                  <div 
-                    className={`h-full rounded-full ${account.isActive ? "bg-[#1677FF]" : "bg-gray-300"}`}
-                    style={{ width: `${progress}%` }}
-                  />
-                </div>
-              </div>
-            )
-          })}
+        
+        {/* 账号管理 */}
+        <div className="w-[361px] bg-white rounded-lg overflow-hidden">
+          <button
+            onClick={() => setIsAccountExpanded(!isAccountExpanded)}
+            className="w-full px-4 py-3 flex items-center justify-between border-b border-gray-100"
+          >
+            <span className="text-sm font-medium text-[#1677FF]">账号管理</span>
+            {isAccountExpanded ? (
+              <ChevronUp className="w-4 h-4 text-gray-400" />
+            ) : (
+              <ChevronDown className="w-4 h-4 text-gray-400" />
+            )}
+          </button>
+          {isAccountExpanded && (
+            <div>
+              {accountList.map((account) => (
+                <button
+                  key={account.id}
+                  onClick={() => handleAccountClick(account.name)}
+                  className="w-full px-4 py-3 flex items-center justify-between border-b border-gray-50 hover:bg-gray-50 transition-colors text-left"
+                >
+                  <span className="text-sm text-gray-700">{account.name}</span>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
-        <div className="w-[361px] bg-white rounded-lg p-4">
-          <h3 className="text-sm font-medium text-gray-800 mb-3">预算管理</h3>
-          <div className="flex gap-3">
-            <button
-              onClick={() => goToBatchBudget("")}
-              className="flex-1 bg-gray-100 rounded-lg py-2.5 text-center text-sm text-gray-600 hover:bg-gray-200 transition-colors"
-            >
-              批量修改
-            </button>
-            <button 
-              onClick={goToSmartOptimization}
-              className="flex-1 bg-gray-100 rounded-lg py-2.5 text-sm text-gray-600 hover:bg-gray-200 transition-colors"
-            >
-              智能调优
-            </button>
-          </div>
-        </div>
-        <div className="w-[361px] bg-white rounded-lg p-4">
-          <h3 className="text-sm font-medium text-gray-800 mb-2">告警设置</h3>
-          <p className="text-xs text-gray-500">已设置3个账户预算告警</p>
+        
+        {/* 推广管理 */}
+        <div className="w-[361px] bg-white rounded-lg overflow-hidden">
+          <button
+            onClick={() => setIsPromotionExpanded(!isPromotionExpanded)}
+            className="w-full px-4 py-3 flex items-center justify-between"
+          >
+            <span className="text-sm font-medium text-gray-700">推广管理</span>
+            <ChevronRight className="w-4 h-4 text-gray-400" />
+          </button>
         </div>
       </main>
+      
+      {/* 确认弹窗 */}
+      {showConfirmDialog && (
+        <>
+          <div 
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '393px',
+              height: '844px',
+              backgroundColor: 'rgba(0,0,0,0.5)',
+              zIndex: 60,
+              margin: 0,
+              padding: 0,
+              transform: 'none'
+            }}
+            onClick={() => setShowConfirmDialog(false)}
+          />
+          <div 
+            style={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: '300px',
+              backgroundColor: '#fff',
+              borderRadius: '12px',
+              zIndex: 70,
+              padding: '20px',
+              margin: 0
+            }}
+          >
+            <h3 className="text-base font-medium text-gray-800 mb-3">提示</h3>
+            <p className="text-sm text-gray-600 mb-6">是否进入该账号管理?</p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowConfirmDialog(false)}
+                className="px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                取消
+              </button>
+              <button
+                onClick={handleConfirmEnter}
+                className="px-4 py-2 text-sm text-white bg-[#1677FF] rounded-lg hover:bg-blue-600 transition-colors"
+              >
+                确认
+              </button>
+            </div>
+          </div>
+        </>
+      )}
 
       {/* 筛选面板 Bottom Sheet */}
       {showFilterSheet && (
